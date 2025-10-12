@@ -36,7 +36,7 @@ def render_editor_campos():
     # Mostra o formulário para preenchimento
     if st.session_state.campos:
         st.divider()
-        st.subheader("📋 Preencha o Formulário")
+        st.subheader("📋 Pre-vizualização do Formulário")
         respostas = {}
 
         for campo in st.session_state.campos:
