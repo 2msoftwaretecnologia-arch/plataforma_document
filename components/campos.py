@@ -1,15 +1,9 @@
 import streamlit as st
-from controllers.actions import adicionar_campo,remover_campo
+from controllers.actions import remover_campo , rerun
 
-
-
-  
-def rerun():
-    """Encapsula st.rerun() para legibilidade."""
-    st.rerun()
 
 # =============================
-# ⚙️ 3. Renderizadores Específicos
+# ⚙️ 3. Renderizadores Específicos de inputs
 # =============================
 
 def render_config_texto(campo: dict, i: int):
@@ -99,19 +93,3 @@ def render_campo(campo: dict, i: int):
             render_config_texto(campo, i)
         elif campo["tipo"] == "Lista":
             render_config_lista(campo, i)
-
-def render_page():
-
-    for i, campo in enumerate(st.session_state.campos):
-        render_campo(campo, i)
-
-        # Exibe botão de adicionar apenas abaixo do último campo
-        if i == len(st.session_state.campos) - 1:
-            st.divider()
-            if st.button("➕ Adicionar novo campo", key=f"add_field_{i}"):
-                adicionar_campo()
-
-    if not st.session_state.campos:
-        st.info("Nenhum campo adicionado ainda. Clique abaixo para começar!")
-        if st.button("➕ Adicionar primeiro campo"):
-            adicionar_campo()

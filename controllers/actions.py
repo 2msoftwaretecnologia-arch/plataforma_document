@@ -17,3 +17,7 @@ def remover_campo(i: int):
         """Remove o campo indicado pelo índice."""
         st.session_state.campos.pop(i)
         st.rerun()
+
+def rerun():
+    """Encapsula st.rerun() para legibilidade."""
+    st.rerun()
