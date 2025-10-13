@@ -1,0 +1,29 @@
+# Dependencies
+node_modules
+
+# Build outputs
+.next
+out
+build
+dist
+
+# Environment and config
+.env
+.env.local
+.env.production.local
+.env.development.local
+
+# Cache and logs
+.turbo
+*.log
+
+# Type definitions
+next-env.d.ts
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Git
+.git
