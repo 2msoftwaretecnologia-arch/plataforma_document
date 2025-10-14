@@ -25,7 +25,7 @@ export default function SidebarItem({ icon: Icon, label, href, isOpen }: Sidebar
         isOpen ? "gap-3" : "justify-center",
         isActive
           ? "bg-blue-600 text-white shadow-md hover:bg-blue-700 hover:shadow-lg"
-          : "text-foreground hover:bg-gray-200 dark:hover:bg-gray-800 hover:shadow-sm",
+          : "text-foreground hover:bg-gray-100 hover:text-white dark:hover:bg-gray-800 hover:shadow-sm",
       )}
     >
       <Icon fontSize="small" className="flex-shrink-0" />
