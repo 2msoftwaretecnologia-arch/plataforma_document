@@ -3,28 +3,28 @@
 /* Light theme (default) */
 :root,
 :root.light {
-  --background: #ffffff;
-  --foreground: #171717;
-  --border: #e5e5e5;
-  --primary: #2563eb;
-  --primary-foreground: #ffffff;
-  --secondary: #f3f4f6;
-  --secondary-foreground: #374151;
-  --muted: #f9fafb;
-  --muted-foreground: #6b7280;
+  --background: #ffffff;                /* Fundo principal */
+  --foreground: #171717;                /* Texto principal */
+  --border: #e5e5e5;                    /* Bordas */
+  --primary: #2563eb;                   /* Cor primária (botões, links) */
+  --primary-foreground: #ffffff;        /* Texto sobre primária */
+  --secondary: #f3f4f6;                 /* Cor secundária (backgrounds alternativos) */
+  --secondary-foreground: #374151;      /* Texto sobre secundária */
+  --muted: #f9fafb;                     /* Fundo suave, discreto */
+  --muted-foreground: #6b7280;          /* Texto discreto, secundário */
 }
 
 /* Dark theme */
 :root.dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-  --border: #262626;
-  --primary: #3b82f6;
-  --primary-foreground: #ffffff;
-  --secondary: #1f1f1f;
-  --secondary-foreground: #e5e5e5;
-  --muted: #171717;
-  --muted-foreground: #a3a3a3;
+  --background: #0a0a0a;                /* Fundo principal */
+  --foreground: #ededed;                /* Texto principal */
+  --border: #262626;                    /* Bordas */
+  --primary: #3b82f6;                   /* Cor primária (botões, links) */
+  --primary-foreground: #ffffff;        /* Texto sobre primária */
+  --secondary: #1f1f1f;                 /* Cor secundária (backgrounds alternativos) */
+  --secondary-foreground: #e5e5e5;      /* Texto sobre secundária */
+  --muted: #171717;                     /* Fundo suave, discreto */
+  --muted-foreground: #a3a3a3;          /* Texto discreto, secundário */
 }
 
 @theme inline {

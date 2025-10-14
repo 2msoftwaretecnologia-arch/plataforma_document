@@ -140,25 +140,185 @@ JavaScript com tipagem estática que adiciona verificação de tipos durante o d
 - Código mais seguro e documentado
 - Refatoração mais confiável
 
+## Sistema de Temas
+
+A aplicação possui um sistema de temas claro/escuro integrado com Tailwind CSS e Material-UI.
+
+### Variáveis CSS Disponíveis
+
+```css
+/* Cores principais */
+--background          /* Fundo principal da aplicação */
+--foreground          /* Cor principal do texto */
+--border              /* Cor das bordas */
+
+/* Cores de destaque */
+--primary             /* Cor primária (botões, links) */
+--primary-foreground  /* Texto sobre cor primária */
+
+/* Cores secundárias */
+--secondary           /* Cor secundária (backgrounds alternativos) */
+--secondary-foreground /* Texto sobre cor secundária */
+
+/* Cores discretas */
+--muted               /* Fundo discreto/suave */
+--muted-foreground    /* Texto discreto/secundário */
+```
+
+### Como Usar com Tailwind
+
+**Classes personalizadas (recomendado):**
+```jsx
+<div className="bg-background text-foreground border-border">
+  <h1 className="text-foreground">Título</h1>
+  <p className="text-muted-foreground">Descrição</p>
+  <button className="bg-primary text-primary-foreground">Ação</button>
+</div>
+```
+
+**Classes com prefixo dark: (para controle fino):**
+```jsx
+<div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+  Conteúdo que muda entre light/dark
+</div>
+```
+
+### Alternador de Tema
+
+O alternador está disponível na sidebar (ícone de sol/lua). O tema escolhido é salvo no `localStorage` e persiste entre sessões.
+
+## Autenticação
+
+Sistema de autenticação JWT com rotas protegidas e API server-side.
+
+### Credenciais de Teste
+
+- **Email:** `admin@example.com`
+- **Password:** `password123`
+
+### Funcionalidades
+
+- Login com validação de formulário (React Hook Form + Zod)
+- Alternador de visibilidade de senha
+- Rotas protegidas com redirecionamento automático
+- Persistência de sessão via localStorage
+- Logout com limpeza de dados
+- Validação de token via servidor
+
+### API Routes (Provisórias)
+
+> ⚠️ **Nota**: As API routes atuais são **provisórias** e servem apenas para **simular** um backend real durante o desenvolvimento. Elas usam dados mockados e devem ser substituídas por uma API real em produção.
+
+#### Arquitetura Atual
+
+```
+Client (AuthContext) → API Client → Next.js API Routes → Mock Database
+```
+
+#### Endpoints Disponíveis
+
+**POST `/api/auth/login`**
+- Autentica usuário com email e senha
+- Retorna JWT token e dados do usuário
+- Status: 200 (sucesso) | 401 (credenciais inválidas)
+
+```typescript
+// Request
+{
+  "email": "admin@example.com",
+  "password": "password123"
+}
+
+// Response
+{
+  "token": "eyJhbGc...",
+  "user": {
+    "id": "1",
+    "email": "admin@example.com",
+    "name": "Admin User"
+  }
+}
+```
+
+**POST `/api/auth/validate`**
+- Valida token JWT
+- Retorna dados do usuário se token válido
+- Status: 200 (válido) | 401 (inválido/expirado)
+
+```typescript
+// Request
+{
+  "token": "eyJhbGc..."
+}
+
+// Response
+{
+  "user": {
+    "id": "1",
+    "email": "admin@example.com",
+    "name": "Admin User"
+  }
+}
+```
+
+### Estrutura de Arquivos
+
+```
+src/
+├── app/api/auth/          # API Routes (server-side) - PROVISÓRIAS
+│   ├── login/route.ts     # Endpoint de login
+│   └── validate/route.ts  # Endpoint de validação de token
+├── lib/
+│   └── apiClient.ts       # Client-side API helper
+├── contexts/
+│   └── AuthContext.tsx    # Gerenciamento de estado de autenticação
+└── types/
+    └── auth.ts            # Tipos TypeScript
+```
+
+### Migração Futura
+
+Para conectar a uma API real em produção:
+
+1. Atualizar URLs em `src/lib/apiClient.ts` para apontar para API externa
+2. Remover pasta `src/app/api/auth/` (mock routes)
+3. Ajustar tipos de resposta se necessário
+4. Configurar CORS e autenticação adequados
+
 ## Status de Implementação
 
 ### ✅ Implementado
 
+#### Autenticação
+- Sistema completo de autenticação JWT
+- Página de login com validação (React Hook Form + Zod)
+- API Routes server-side para login e validação (provisórias/mock)
+- Rotas protegidas com redirecionamento automático
+- Gerenciamento de sessão com persistência
+- Arquitetura client-server preparada para migração
+
+#### Temas
+- Alternador light/dark mode
+- Persistência de tema
+- Integração Tailwind + Material-UI
+- Transições suaves entre temas
+
 #### Componentes UI
 - **Navegação Lateral (Sidebar)**
-  - Sidebar recolhível com estados aberto/fechado
+  - Sidebar recolhível
+  - Alternador de tema integrado
+  - Informações do usuário logado
+  - Botão de logout funcional
   - Destaque da página ativa
-  - Efeitos de hover com background e sombra
-  - Transições e animações suaves
-  - Botão de toggle responsivo
   - Integração com ícones do Material-UI
 
 #### Páginas
-- **Dashboard** (`/`) - Página inicial com placeholder
-- **Mapeamento** (`/mapeamento`) - Página de mapeamento (placeholder)
-- **Criar Formulário** (`/criar-formulario`) - Página de criação de formulário (placeholder)
-- **Histórico** (`/historico`) - Página de histórico (placeholder)
-- **Plano** (`/plano`) - Página de planos/preços (placeholder)
+- **Login** (`/login`) - Autenticação com formulário validado
+- **Dashboard** (`/`) - Página inicial (placeholder)
+- **Mapeamento** (`/mapeamento`) - Placeholder
+- **Criar Formulário** (`/criar-formulario`) - Placeholder
+- **Histórico** (`/historico`) - Placeholder
+- **Plano** (`/plano`) - Placeholder
 
 ## Scripts Disponíveis
 

@@ -5,7 +5,7 @@ import type {
   LoginCredentials,
   User,
 } from "@/types/auth";
-import { login as loginService, validateToken } from "@/services/authService";
+import { loginUser, validateToken as validateTokenAPI } from "@/lib/apiClient";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -33,7 +33,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      const userData = await validateToken(storedToken);
+      // Valida token via API route (server-side)
+      const userData = await validateTokenAPI(storedToken);
 
       if (userData) {
         setUser(userData);
@@ -52,7 +53,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (credentials: LoginCredentials) => {
     try {
-      const response = await loginService(credentials);
+      // Faz login via API route (server-side)
+      const response = await loginUser(credentials);
 
       setUser(response.user);
       setToken(response.token);
