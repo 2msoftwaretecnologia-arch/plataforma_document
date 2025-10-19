@@ -4,28 +4,40 @@ import React, { useState } from "react";
 import { Box, Alert, Snackbar } from "@mui/material";
 import DynamicListBuilder from "../../components/forms/DynamicListBuilder";
 
-interface ListData {
-  lists: Array<{
+interface FormData {
+  lists?: Array<{
     name: string;
     options: Array<{ value: string }>;
+  }>;
+  textFields?: Array<{
+    name: string;
+    value?: string;
+  }>;
+  numberFields?: Array<{
+    name: string;
+    value?: number;
+    min?: number;
+    max?: number;
+    allowDecimals?: boolean;
+    required?: boolean;
   }>;
 }
 
 export default function CriarFormulario() {
-  const [savedData, setSavedData] = useState<ListData | null>(null);
+  const [savedData, setSavedData] = useState<FormData | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const handleSave = (data: ListData) => {
+  const handleSave = (data: FormData) => {
     setSavedData(data);
     setShowSuccess(true);
-    console.log("Listas salvas:", data);
+    console.log("Formulário salvo:", data);
     
     // Aqui você pode implementar a lógica para salvar no backend
-    // Por exemplo: await saveListsToAPI(data);
+    // Por exemplo: await saveFormToAPI(data);
   };
 
-  const handlePreview = (data: ListData) => {
-    console.log("Preview das listas:", data);
+  const handlePreview = (data: FormData) => {
+    console.log("Preview do formulário:", data);
     // Aqui você pode implementar a lógica de preview
     // Por exemplo: abrir um modal ou navegar para uma página de preview
   };
@@ -49,7 +61,7 @@ export default function CriarFormulario() {
           severity="success"
           sx={{ width: "100%" }}
         >
-          Listas salvas com sucesso!
+          Formulário salvo com sucesso!
         </Alert>
       </Snackbar>
     </Box>

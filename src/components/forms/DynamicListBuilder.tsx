@@ -13,9 +13,13 @@ import {
   Paper,
   Divider,
   useTheme,
+  Tabs,
+  Tab,
 } from "@mui/material";
-import { Add, Save, Preview } from "@mui/icons-material";
+import { Add, Save, Preview, TextFields, Numbers, List } from "@mui/icons-material";
 import ListInput from "./ListInput";
+import TextInput from "./TextInput";
+import NumberInput from "./NumberInput";
 import FormPreview from "./FormPreview";
 
 // Schema de validação
@@ -28,9 +32,35 @@ const listSchema = z.object({
   options: z.array(listOptionSchema).min(1, "Pelo menos uma opção é necessária"),
 });
 
-const formSchema = z.object({
-  lists: z.array(listSchema).min(1, "Pelo menos uma lista é necessária"),
+const textFieldSchema = z.object({
+  name: z.string().min(1, "Nome do campo é obrigatório"),
+  value: z.string().optional(),
 });
+
+const numberFieldSchema = z.object({
+  name: z.string().min(1, "Nome do campo é obrigatório"),
+  value: z.number().optional(),
+  min: z.number().optional(),
+  max: z.number().optional(),
+  allowDecimals: z.boolean().optional(),
+  required: z.boolean().optional(),
+});
+
+const formSchema = z.object({
+  lists: z.array(listSchema).optional(),
+  textFields: z.array(textFieldSchema).optional(),
+  numberFields: z.array(numberFieldSchema).optional(),
+}).refine(
+  (data) => {
+    const hasLists = data.lists && data.lists.length > 0;
+    const hasTextFields = data.textFields && data.textFields.length > 0;
+    const hasNumberFields = data.numberFields && data.numberFields.length > 0;
+    return hasLists || hasTextFields || hasNumberFields;
+  },
+  {
+    message: "Pelo menos um campo (lista, texto ou número) deve ser adicionado",
+  }
+);
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -47,6 +77,7 @@ export default function DynamicListBuilder({
 }: DynamicListBuilderProps) {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === 'dark';
+  const [activeTab, setActiveTab] = React.useState(0);
   
   const {
     control,
@@ -56,12 +87,9 @@ export default function DynamicListBuilder({
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
-      lists: [
-        {
-          name: "",
-          options: [{ value: "" }],
-        },
-      ],
+      lists: [],
+      textFields: [],
+      numberFields: [],
     },
     mode: "onChange",
   });
@@ -75,12 +103,48 @@ export default function DynamicListBuilder({
     name: "lists",
   });
 
-  const watchedLists = watch("lists");
+  const {
+    fields: textFields,
+    append: appendTextField,
+    remove: removeTextField,
+  } = useFieldArray({
+    control,
+    name: "textFields",
+  });
+
+  const {
+    fields: numberFields,
+    append: appendNumberField,
+    remove: removeNumberField,
+  } = useFieldArray({
+    control,
+    name: "numberFields",
+  });
+
+  const watchedData = watch();
 
   const addNewList = () => {
     appendList({
       name: "",
       options: [{ value: "" }],
+    });
+  };
+
+  const addNewTextField = () => {
+    appendTextField({
+      name: "",
+      value: "",
+    });
+  };
+
+  const addNewNumberField = () => {
+    appendNumberField({
+      name: "",
+      value: undefined,
+      min: undefined,
+      max: undefined,
+      allowDecimals: true,
+      required: false,
     });
   };
 
@@ -98,55 +162,155 @@ export default function DynamicListBuilder({
     }
   };
 
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
+  };
+
   return (
     <Container maxWidth="md">
       <Box sx={{ py: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
-          Construtor de Listas Dinâmicas
+          Construtor de Formulários Dinâmicos
         </Typography>
         
         <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-          Crie quantas listas de opções você precisar para seu formulário. 
-          Cada lista pode ter múltiplas opções que os usuários poderão selecionar.
+          Crie campos de diferentes tipos para seu formulário: listas de opções, campos de texto e campos numéricos.
         </Typography>
 
         <form onSubmit={handleSubmit(onSubmit)}>
           {/* Exibir erros gerais */}
-          {errors.lists && (
+          {errors.root && (
             <Alert severity="error" sx={{ mb: 3 }}>
-              {errors.lists.message}
+              {errors.root.message}
             </Alert>
           )}
 
-          {/* Lista de componentes ListInput */}
-          <Box sx={{ mb: 4 }}>
-            {listFields.map((field, index) => (
-              <ListInput
-                key={field.id}
-                control={control}
-                index={index}
-                onRemove={() => removeList(index)}
+          {/* Tabs para diferentes tipos de campos */}
+          <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+            <Tabs value={activeTab} onChange={handleTabChange} aria-label="field types">
+              <Tab 
+                icon={<List />} 
+                label="Listas" 
+                sx={{ minHeight: 48 }}
               />
-            ))}
+              <Tab 
+                icon={<TextFields />} 
+                label="Campos de Texto" 
+                sx={{ minHeight: 48 }}
+              />
+              <Tab 
+                icon={<Numbers />} 
+                label="Campos Numéricos" 
+                sx={{ minHeight: 48 }}
+              />
+            </Tabs>
           </Box>
 
-          {/* Botão para adicionar nova lista */}
-          <Box sx={{ mb: 4, textAlign: "center" }}>
-            <Button
-              onClick={addNewList}
-              startIcon={<Add />}
-              variant="outlined"
-              size="large"
-              sx={{ minWidth: 200 }}
-            >
-              Adicionar Nova Lista
-            </Button>
-          </Box>
+          {/* Conteúdo das tabs */}
+          {activeTab === 0 && (
+            <Box>
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                Listas de Opções
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                Crie listas com múltiplas opções que os usuários poderão selecionar.
+              </Typography>
+              
+              {listFields.map((field, index) => (
+                <ListInput
+                  key={field.id}
+                  control={control}
+                  index={index}
+                  onRemove={() => removeList(index)}
+                />
+              ))}
+
+              <Box sx={{ mb: 4, textAlign: "center" }}>
+                <Button
+                  onClick={addNewList}
+                  startIcon={<Add />}
+                  variant="outlined"
+                  size="large"
+                  sx={{ minWidth: 200 }}
+                >
+                  Adicionar Lista
+                </Button>
+              </Box>
+            </Box>
+          )}
+
+          {activeTab === 1 && (
+            <Box>
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                Campos de Texto
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                Adicione campos para entrada de texto livre, como descrições ou comentários.
+              </Typography>
+              
+              {textFields.map((field, index) => (
+                <TextInput
+                  key={field.id}
+                  control={control}
+                  index={index}
+                  onRemove={() => removeTextField(index)}
+                />
+              ))}
+
+              <Box sx={{ mb: 4, textAlign: "center" }}>
+                <Button
+                  onClick={addNewTextField}
+                  startIcon={<Add />}
+                  variant="outlined"
+                  size="large"
+                  sx={{ minWidth: 200 }}
+                >
+                  Adicionar Campo de Texto
+                </Button>
+              </Box>
+            </Box>
+          )}
+
+          {activeTab === 2 && (
+            <Box>
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                Campos Numéricos
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                Crie campos para entrada de números, com validação e configurações personalizadas.
+              </Typography>
+              
+              {numberFields.map((field, index) => (
+                <NumberInput
+                  key={field.id}
+                  control={control}
+                  index={index}
+                  onRemove={() => removeNumberField(index)}
+                />
+              ))}
+
+              <Box sx={{ mb: 4, textAlign: "center" }}>
+                <Button
+                  onClick={addNewNumberField}
+                  startIcon={<Add />}
+                  variant="outlined"
+                  size="large"
+                  sx={{ minWidth: 200 }}
+                >
+                  Adicionar Campo Numérico
+                </Button>
+              </Box>
+            </Box>
+          )}
 
           <Divider sx={{ mb: 4 }} />
 
           {/* Preview do Formulário */}
-          <FormPreview lists={watchedLists} />
+          <FormPreview 
+            lists={watchedData.lists || []} 
+            textFields={watchedData.textFields || []}
+            numberFields={watchedData.numberFields || []}
+          />
 
           <Divider sx={{ my: 4, borderColor: isDarkMode ? 'grey.700' : 'grey.300' }} />
 
@@ -179,7 +343,7 @@ export default function DynamicListBuilder({
                 border: isDarkMode ? '1px solid #444' : '1px solid #ddd'
               }}
             >
-              {JSON.stringify(watchedLists, null, 2)}
+              {JSON.stringify(watchedData, null, 2)}
             </pre>
           </Paper>
 
@@ -202,14 +366,14 @@ export default function DynamicListBuilder({
               size="large"
               disabled={!isValid}
             >
-              Salvar Listas
+              Salvar Formulário
             </Button>
           </Box>
 
           {/* Informações de validação */}
           {!isValid && (
             <Alert severity="info" sx={{ mt: 3 }}>
-              Complete todos os campos obrigatórios para habilitar as ações.
+              Adicione pelo menos um campo para habilitar as ações.
             </Alert>
           )}
         </form>
