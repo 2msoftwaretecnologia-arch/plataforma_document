@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <title>Editar Documento</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- TinyMCE com sua API key -->
+  <script src="https://cdn.tiny.cloud/1/bumveqy4u8no8hl77rnfgq1e91m01hrhx2qnrfb9u5ftziu2/tinymce/8/tinymce.min.js"
+          referrerpolicy="origin"
+          crossorigin="anonymous"></script>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      max-width: 1100px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+    .topbar { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+    .btn { padding: 10px 16px; border: 0; border-radius: 8px; background: #0ea5e9; color: #fff; font-weight: 600; cursor: pointer; }
+    .btn.secondary { background: #64748b; }
+    .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+    .hint { color: #64748b; font-size: 14px; }
+  </style>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      tinymce.init({
+        selector: '#editor',
+        height: 600,
+        menubar: true,
+        plugins: [
+          // Recursos básicos de edição
+          'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'link', 'lists',
+          'media', 'searchreplace', 'table', 'visualblocks', 'wordcount',
+
+          // Recursos premium em teste até 02/11/2025
+          'checklist', 'mediaembed', 'casechange', 'formatpainter', 'pageembed',
+          'a11ychecker', 'tinymcespellchecker', 'permanentpen', 'powerpaste',
+          'advtable', 'advcode', 'advtemplate', 'ai', 'uploadcare', 'mentions',
+          'tinycomments', 'tableofcontents', 'footnotes', 'mergetags', 'autocorrect',
+          'typography', 'inlinecss', 'markdown', 'importword', 'exportword', 'exportpdf'
+        ],
+        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography uploadcare | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+        tinycomments_mode: 'embedded',
+        tinycomments_author: 'Usuário',
+        mergetags_list: [
+          { value: 'Nome', title: 'Nome' },
+          { value: 'Email', title: 'E-mail' },
+        ],
+        ai_request: (request, respondWith) => respondWith.string(() => Promise.reject('AI Assistant não configurado')),
+        uploadcare_public_key: 'fdc5bd91d6fb9be55ae9', // chave pública padrão
+      });
+
+      // Envio do formulário
+      const exportBtn = document.getElementById("exportDocxBtn");
+      exportBtn.addEventListener("click", () => {
+        const htmlField = document.getElementById("html_content");
+        htmlField.value = tinymce.get('editor').getContent();
+        document.getElementById("exportForm").submit();
+      });
+    });
+  </script>
+</head>
+
+<body>
+  <div class="topbar">
+    <button class="btn secondary" onclick="history.back()">← Voltar</button>
+    <span class="hint">Edite o conteúdo e clique em <strong>Exportar .docx</strong> para baixar.</span>
+  </div>
+
+  <div class="card">
+    <form id="exportForm" action="{{ url_for('export_docx') }}" method="post">
+      <textarea id="editor">{{ html_content|safe }}</textarea>
+      <input type="hidden" id="html_content" name="html_content" />
+      <input type="hidden" name="original_filename" value="{{ original_filename }}" />
+    </form>
+  </div>
+
+  <div style="margin-top:12px">
+    <button id="exportDocxBtn" class="btn">Exportar .docx</button>
+  </div>
+</body>
+</html>
