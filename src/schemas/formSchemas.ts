@@ -10,6 +10,7 @@ export const listSchema = z.object({
   name: z.string().min(1, "Nome da lista é obrigatório"),
   options: z.array(listOptionSchema).min(1, "Pelo menos uma opção é necessária"),
   multiSelect: z.boolean().optional(), // Adiciona suporte para seleção múltipla
+  allowCustomValues: z.boolean().optional(), // Permite valores personalizados não listados nas opções
 });
 
 // Schema para campos de texto

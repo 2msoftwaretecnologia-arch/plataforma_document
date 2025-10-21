@@ -16,6 +16,7 @@ import {
   SelectChangeEvent,
   Chip,
   OutlinedInput,
+  Autocomplete,
 } from "@mui/material";
 import { Visibility } from "@mui/icons-material";
 
@@ -27,6 +28,7 @@ interface ListData {
   name: string;
   options: ListOption[];
   multiSelect?: boolean; // Adiciona suporte para seleção múltipla
+  allowCustomValues?: boolean; // Permite valores personalizados
 }
 
 interface TextFieldData {
@@ -148,7 +150,51 @@ export default function FormPreview({ lists = [], textFields = [], numberFields 
 
           const fieldKey = `list-${index}`;
           const isMultiSelect = list.multiSelect === true;
+          const allowCustomValues = list.allowCustomValues === true;
 
+          // Se permite valores personalizados, usar Autocomplete
+          if (allowCustomValues) {
+            const optionValues = validOptions.map(option => option.value);
+            
+            return (
+              <Autocomplete
+                key={fieldKey}
+                multiple={isMultiSelect}
+                freeSolo
+                options={optionValues}
+                value={isMultiSelect ? (selectedValues[fieldKey] || []) : (selectedValues[fieldKey] || "")}
+                onChange={(event, newValue) => {
+                  setSelectedValues(prev => ({
+                    ...prev,
+                    [fieldKey]: newValue
+                  }));
+                }}
+                renderTags={(value, getTagProps) =>
+                  value.map((option, index) => (
+                    <Chip
+                      {...getTagProps({ index })}
+                      key={index}
+                      label={option}
+                      size="small"
+                      sx={{
+                        bgcolor: isDarkMode ? 'primary.dark' : 'primary.light',
+                        color: isDarkMode ? 'primary.contrastText' : 'primary.contrastText'
+                      }}
+                    />
+                  ))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={`${list.name} ${isMultiSelect ? "(Múltipla seleção)" : ""} - Valores personalizados`}
+                    placeholder={isMultiSelect ? "Selecione ou digite valores..." : "Selecione ou digite um valor..."}
+                  />
+                )}
+              />
+            );
+          }
+
+          // Caso contrário, usar Select tradicional
           return (
             <FormControl key={fieldKey} fullWidth>
               <InputLabel id={`select-label-${index}`}>

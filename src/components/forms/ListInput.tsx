@@ -36,6 +36,7 @@ interface ListData {
   name: string;           // Nome da lista (ex: "Categorias")
   options: ListOption[];  // Array de opções da lista
   multiSelect?: boolean;  // Se permite seleção múltipla (opcional, padrão false)
+  allowCustomValues?: boolean; // Se permite valores personalizados (opcional, padrão false)
 }
 
 // Define as propriedades que este componente recebe
@@ -113,6 +114,41 @@ export default function ListInput({ control, index, onRemove }: ListInputProps) 
                 }}
               >
                 Permite que o usuário selecione mais de uma opção desta lista
+              </Typography>
+            </Box>
+          }
+          sx={{ 
+            alignItems: 'flex-start',
+            '& .MuiFormControlLabel-label': {
+              ml: 1
+            }
+          }}
+        />
+      </Box>
+
+      {/* Seção para configuração de valores personalizados */}
+      <Box sx={{ mb: 3 }}>
+        <FormControlLabel
+          control={
+            <Switch
+              {...control.register(`lists.${index}.allowCustomValues`)}
+              color="primary"
+              size="medium"
+            />
+          }
+          label={
+            <Box>
+              <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                Permitir Valores Personalizados
+              </Typography>
+              <Typography 
+                variant="caption" 
+                sx={{ 
+                  color: isDarkMode ? 'grey.400' : 'text.secondary',
+                  display: 'block'
+                }}
+              >
+                Permite que o usuário digite valores que não estão nas opções predefinidas
               </Typography>
             </Box>
           }
