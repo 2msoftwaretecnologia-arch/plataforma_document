@@ -20,6 +20,24 @@ import {
 } from "@mui/material";
 import { Visibility } from "@mui/icons-material";
 
+// Função para gerar placeholders baseados no tipo de data
+const getPlaceholderForDateType = (dateType: string): string => {
+  const now = new Date();
+  
+  switch (dateType) {
+    case "date":
+      return now.toLocaleDateString('pt-BR'); // DD/MM/AAAA
+    case "datetime-local":
+      return `${now.toLocaleDateString('pt-BR')} ${now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`; // DD/MM/AAAA HH:MM
+    case "time":
+      return now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); // HH:MM
+    case "month":
+      return `${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`; // MM/AAAA
+    default:
+      return "";
+  }
+};
+
 interface ListOption {
   value: string;
 }
@@ -45,13 +63,24 @@ interface NumberFieldData {
   required?: boolean;
 }
 
+interface DateFieldData {
+  name: string;
+  dateType: "date" | "datetime-local" | "time" | "month";
+  value?: string;
+  minDate?: string;
+  maxDate?: string;
+  required?: boolean;
+  helperText?: string;
+}
+
 interface FormPreviewProps {
   lists?: ListData[];
   textFields?: TextFieldData[];
   numberFields?: NumberFieldData[];
+  dateFields?: DateFieldData[];
 }
 
-export default function FormPreview({ lists = [], textFields = [], numberFields = [] }: FormPreviewProps) {
+export default function FormPreview({ lists = [], textFields = [], numberFields = [], dateFields = [] }: FormPreviewProps) {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === 'dark';
   
@@ -102,7 +131,11 @@ export default function FormPreview({ lists = [], textFields = [], numberFields 
     field.name && field.name.trim() !== ""
   );
 
-  const hasAnyValidFields = validLists.length > 0 || validTextFields.length > 0 || validNumberFields.length > 0;
+  const validDateFields = dateFields.filter((field) => 
+    field.name && field.name.trim() !== ""
+  );
+
+  const hasAnyValidFields = validLists.length > 0 || validTextFields.length > 0 || validNumberFields.length > 0 || validDateFields.length > 0;
 
   if (!hasAnyValidFields) {
     return (
@@ -116,7 +149,7 @@ export default function FormPreview({ lists = [], textFields = [], numberFields 
         }}
       >
         <Alert severity="info">
-          Adicione pelo menos um campo (lista, texto ou número) para visualizar o preview do formulário.
+          Adicione pelo menos um campo (lista, texto, número ou data) para visualizar o preview do formulário.
         </Alert>
       </Paper>
     );
@@ -275,6 +308,23 @@ export default function FormPreview({ lists = [], textFields = [], numberFields 
                 ? `Valor máximo: ${field.max}`
                 : undefined
             }
+          />
+        ))}
+
+        {/* Renderizar campos de data válidos */}
+        {validDateFields.map((field, index) => (
+          <TextField
+            key={`date-${index}`}
+            fullWidth
+            label={field.name}
+            variant="outlined"
+            type={field.dateType || "date"}
+            value={selectedValues[`date-${index}`] || ""}
+            onChange={handleInputChange(`date-${index}`)}
+            placeholder={getPlaceholderForDateType(field.dateType || "date")}
+            helperText={field.helperText}
+            required={field.required}
+            InputLabelProps={{ shrink: true }}
           />
         ))}
       </Box>

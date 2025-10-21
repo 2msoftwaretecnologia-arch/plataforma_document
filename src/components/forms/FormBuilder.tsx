@@ -15,11 +15,12 @@ import {
   Tabs,
   Tab,
 } from "@mui/material";
-import { Save, Preview, TextFields, Numbers, List } from "@mui/icons-material";
+import { Save, Preview, TextFields, Numbers, List, CalendarToday } from "@mui/icons-material";
 import FormPreview from "./FormPreview";
 import ListsTab from "./tabs/ListsTab";
 import TextFieldsTab from "./tabs/TextFieldsTab";
 import NumberFieldsTab from "./tabs/NumberFieldsTab";
+import DateFieldsTab from "./tabs/DateFieldsTab";
 import { formSchema } from "../../schemas/formSchemas";
 import { FormData, FormBuilderProps } from "../../types/formTypes";
 
@@ -43,6 +44,7 @@ export default function FormBuilder({
       lists: [],
       textFields: [],
       numberFields: [],
+      dateFields: [],
     },
     mode: "onChange",
   });
@@ -104,6 +106,11 @@ export default function FormBuilder({
                 label="Campos Numéricos" 
                 sx={{ minHeight: 48 }}
               />
+              <Tab 
+                icon={<CalendarToday />} 
+                label="Campos de Data" 
+                sx={{ minHeight: 48 }}
+              />
             </Tabs>
           </Box>
 
@@ -111,6 +118,7 @@ export default function FormBuilder({
           {activeTab === 0 && <ListsTab control={control} />}
           {activeTab === 1 && <TextFieldsTab control={control} />}
           {activeTab === 2 && <NumberFieldsTab control={control} />}
+          {activeTab === 3 && <DateFieldsTab control={control} />}
 
           <Divider sx={{ mb: 4 }} />
 
@@ -119,6 +127,7 @@ export default function FormBuilder({
             lists={watchedData.lists || []} 
             textFields={watchedData.textFields || []}
             numberFields={watchedData.numberFields || []}
+            dateFields={watchedData.dateFields || []}
           />
 
           <Divider sx={{ my: 4, borderColor: isDarkMode ? 'grey.700' : 'grey.300' }} />
