@@ -2,12 +2,13 @@
 
 import React, { useState } from "react";
 import { Box, Alert, Snackbar } from "@mui/material";
-import DynamicListBuilder from "../../components/forms/DynamicListBuilder";
+import FormBuilder from "../../components/forms/FormBuilder";
 
 interface FormData {
   lists?: Array<{
     name: string;
     options: Array<{ value: string }>;
+    multiSelect?: boolean; // Adiciona suporte para seleção múltipla
   }>;
   textFields?: Array<{
     name: string;
@@ -44,7 +45,7 @@ export default function CriarFormulario() {
 
   return (
     <Box>
-      <DynamicListBuilder
+      <FormBuilder
         onSave={handleSave}
         onPreview={handlePreview}
         initialData={savedData || undefined}

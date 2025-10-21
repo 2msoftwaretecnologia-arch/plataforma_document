@@ -14,6 +14,8 @@ import {
   Alert,
   useTheme,
   SelectChangeEvent,
+  Chip,
+  OutlinedInput,
 } from "@mui/material";
 import { Visibility } from "@mui/icons-material";
 
@@ -24,6 +26,7 @@ interface ListOption {
 interface ListData {
   name: string;
   options: ListOption[];
+  multiSelect?: boolean; // Adiciona suporte para seleção múltipla
 }
 
 interface TextFieldData {
@@ -53,11 +56,20 @@ export default function FormPreview({ lists = [], textFields = [], numberFields 
   // Estado para controlar os valores selecionados em cada campo
   const [selectedValues, setSelectedValues] = useState<{ [key: string]: any }>({});
 
-  // Handler para mudanças nos selects
+  // Handler para mudanças nos selects (seleção única)
   const handleSelectChange = (fieldKey: string) => (event: SelectChangeEvent) => {
     setSelectedValues(prev => ({
       ...prev,
       [fieldKey]: event.target.value
+    }));
+  };
+
+  // Handler para mudanças nos selects múltiplos
+  const handleMultiSelectChange = (fieldKey: string) => (event: SelectChangeEvent<string[]>) => {
+    const value = event.target.value;
+    setSelectedValues(prev => ({
+      ...prev,
+      [fieldKey]: typeof value === 'string' ? value.split(',') : value
     }));
   };
 
@@ -134,17 +146,37 @@ export default function FormPreview({ lists = [], textFields = [], numberFields 
             (option) => option.value && option.value.trim() !== ""
           );
 
+          const fieldKey = `list-${index}`;
+          const isMultiSelect = list.multiSelect === true;
+
           return (
-            <FormControl key={`list-${index}`} fullWidth>
+            <FormControl key={fieldKey} fullWidth>
               <InputLabel id={`select-label-${index}`}>
-                {list.name}
+                {list.name} {isMultiSelect && "(Múltipla seleção)"}
               </InputLabel>
               <Select
                 labelId={`select-label-${index}`}
                 id={`select-${index}`}
-                value={selectedValues[`list-${index}`] || ""}
-                label={list.name}
-                onChange={handleSelectChange(`list-${index}`)}
+                multiple={isMultiSelect}
+                value={isMultiSelect ? (selectedValues[fieldKey] || []) : (selectedValues[fieldKey] || "")}
+                label={`${list.name} ${isMultiSelect ? "(Múltipla seleção)" : ""}`}
+                onChange={isMultiSelect ? handleMultiSelectChange(fieldKey) : handleSelectChange(fieldKey)}
+                input={isMultiSelect ? <OutlinedInput label={`${list.name} (Múltipla seleção)`} /> : undefined}
+                renderValue={isMultiSelect ? (selected) => (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {(selected as string[]).map((value) => (
+                      <Chip 
+                        key={value} 
+                        label={value} 
+                        size="small"
+                        sx={{
+                          bgcolor: isDarkMode ? 'primary.dark' : 'primary.light',
+                          color: isDarkMode ? 'primary.contrastText' : 'primary.contrastText'
+                        }}
+                      />
+                    ))}
+                  </Box>
+                ) : undefined}
               >
                 {validOptions.map((option, optionIndex) => (
                   <MenuItem key={optionIndex} value={option.value}>

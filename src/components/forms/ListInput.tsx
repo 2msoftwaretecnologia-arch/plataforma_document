@@ -14,6 +14,8 @@ import {
   Paper,      // Container com sombra/elevação
   Divider,    // Linha divisória
   useTheme,   // Hook para acessar o tema atual
+  FormControlLabel, // Container para label + controle
+  Switch,     // Componente switch (toggle)
 } from "@mui/material";
 // Importa ícone do Material-UI
 import { Add } from "@mui/icons-material";
@@ -33,6 +35,7 @@ interface ListOption {
 interface ListData {
   name: string;           // Nome da lista (ex: "Categorias")
   options: ListOption[];  // Array de opções da lista
+  multiSelect?: boolean;  // Se permite seleção múltipla (opcional, padrão false)
 }
 
 // Define as propriedades que este componente recebe
@@ -87,7 +90,42 @@ export default function ListInput({ control, index, onRemove }: ListInputProps) 
         />
       </Box>
 
-      {/* Linha divisória entre nome e opções */}
+      {/* Seção para configuração de seleção múltipla */}
+      <Box sx={{ mb: 3 }}>
+        <FormControlLabel
+          control={
+            <Switch
+              {...control.register(`lists.${index}.multiSelect`)}
+              color="primary"
+              size="medium"
+            />
+          }
+          label={
+            <Box>
+              <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                Permitir Seleção Múltipla
+              </Typography>
+              <Typography 
+                variant="caption" 
+                sx={{ 
+                  color: isDarkMode ? 'grey.400' : 'text.secondary',
+                  display: 'block'
+                }}
+              >
+                Permite que o usuário selecione mais de uma opção desta lista
+              </Typography>
+            </Box>
+          }
+          sx={{ 
+            alignItems: 'flex-start',
+            '& .MuiFormControlLabel-label': {
+              ml: 1
+            }
+          }}
+        />
+      </Box>
+
+      {/* Linha divisória entre configurações e opções */}
       <Divider sx={{ mb: 2, borderColor: isDarkMode ? 'grey.700' : 'grey.300' }} />
 
       {/* Título da seção de opções */}
