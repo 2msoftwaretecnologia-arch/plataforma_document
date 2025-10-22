@@ -15,12 +15,13 @@ import {
   Tabs,
   Tab,
 } from "@mui/material";
-import { Save, Preview, TextFields, Numbers, List, CalendarToday } from "@mui/icons-material";
+import { Save, Preview, TextFields, Numbers, List, CalendarToday, Image } from "@mui/icons-material";
 import FormPreview from "./FormPreview";
 import ListsTab from "./tabs/ListsTab";
 import TextFieldsTab from "./tabs/TextFieldsTab";
 import NumberFieldsTab from "./tabs/NumberFieldsTab";
 import DateFieldsTab from "./tabs/DateFieldsTab";
+import ImageFieldsTab from "./tabs/ImageFieldsTab";
 import { formSchema } from "../../schemas/formSchemas";
 import { FormData, FormBuilderProps } from "../../types/formTypes";
 
@@ -45,6 +46,7 @@ export default function FormBuilder({
       textFields: [],
       numberFields: [],
       dateFields: [],
+      imageFields: [],
     },
     mode: "onChange",
   });
@@ -77,7 +79,7 @@ export default function FormBuilder({
         </Typography>
         
         <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-          Crie campos de diferentes tipos para seu formulário: listas de opções, campos de texto e campos numéricos.
+          Crie campos de diferentes tipos para seu formulário: listas de opções, campos de texto, campos numéricos, campos de data e campos de imagem.
         </Typography>
 
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -111,6 +113,11 @@ export default function FormBuilder({
                 label="Campos de Data" 
                 sx={{ minHeight: 48 }}
               />
+              <Tab 
+                icon={<Image />} 
+                label="Campos de Imagem" 
+                sx={{ minHeight: 48 }}
+              />
             </Tabs>
           </Box>
 
@@ -119,6 +126,7 @@ export default function FormBuilder({
           {activeTab === 1 && <TextFieldsTab control={control} />}
           {activeTab === 2 && <NumberFieldsTab control={control} />}
           {activeTab === 3 && <DateFieldsTab control={control} />}
+          {activeTab === 4 && <ImageFieldsTab control={control} />}
 
           <Divider sx={{ mb: 4 }} />
 
@@ -128,6 +136,7 @@ export default function FormBuilder({
             textFields={watchedData.textFields || []}
             numberFields={watchedData.numberFields || []}
             dateFields={watchedData.dateFields || []}
+            imageFields={watchedData.imageFields || []}
           />
 
           <Divider sx={{ my: 4, borderColor: isDarkMode ? 'grey.700' : 'grey.300' }} />

@@ -17,8 +17,9 @@ import {
   Chip,
   OutlinedInput,
   Autocomplete,
+  Button,
 } from "@mui/material";
-import { Visibility } from "@mui/icons-material";
+import { Visibility, CloudUpload } from "@mui/icons-material";
 
 // Função para gerar placeholders baseados no tipo de data
 const getPlaceholderForDateType = (dateType: string): string => {
@@ -71,19 +72,33 @@ interface DateFieldData {
   helperText?: string;
 }
 
+interface ImageFieldData {
+  name: string;
+  allowMultiple?: boolean;
+  required?: boolean;
+  helperText?: string;
+  acceptedFormats?: string[];
+  maxFileSize?: number;
+}
+
 interface FormPreviewProps {
   lists?: ListData[];
   textFields?: TextFieldData[];
   numberFields?: NumberFieldData[];
   dateFields?: DateFieldData[];
+  imageFields?: ImageFieldData[];
 }
 
-export default function FormPreview({ lists = [], textFields = [], numberFields = [], dateFields = [] }: FormPreviewProps) {
+export default function FormPreview({ lists = [], textFields = [], numberFields = [], dateFields = [], imageFields = [] }: FormPreviewProps) {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === 'dark';
   
   // Estado para controlar os valores selecionados em cada campo
   const [selectedValues, setSelectedValues] = useState<{ [key: string]: any }>({});
+  
+  // Estado para controlar drag and drop
+  const [dragStates, setDragStates] = useState<{ [key: string]: boolean }>({});
+  const [uploadedFiles, setUploadedFiles] = useState<{ [key: string]: File[] }>({});
 
   // Handler para mudanças nos selects (seleção única)
   const handleSelectChange = (fieldKey: string) => (event: SelectChangeEvent) => {
@@ -110,6 +125,161 @@ export default function FormPreview({ lists = [], textFields = [], numberFields 
     }));
   };
 
+  // Handlers para drag and drop
+  const handleDragOver = (fieldKey: string) => (event: React.DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
+  const handleDragEnter = (fieldKey: string) => (event: React.DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setDragStates(prev => ({ ...prev, [fieldKey]: true }));
+  };
+
+  const handleDragLeave = (fieldKey: string) => (event: React.DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    // Só remove o estado se realmente saiu da área
+    if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+      setDragStates(prev => ({ ...prev, [fieldKey]: false }));
+    }
+  };
+
+  const handleDrop = (fieldKey: string, field: ImageFieldData) => async (event: React.DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setDragStates(prev => ({ ...prev, [fieldKey]: false }));
+
+    const items = Array.from(event.dataTransfer.items);
+    const allFiles: File[] = [];
+
+    // Função para processar entradas de diretório recursivamente
+    const processEntry = async (entry: FileSystemEntry): Promise<File[]> => {
+      const files: File[] = [];
+      
+      if (entry.isFile) {
+        const fileEntry = entry as FileSystemFileEntry;
+        return new Promise((resolve) => {
+          fileEntry.file((file) => {
+            // Verifica se é uma imagem
+            if (field.acceptedFormats && field.acceptedFormats.length > 0) {
+              const isValidFormat = field.acceptedFormats.some(format => 
+                file.type.includes(format.replace('*', '').replace('.', ''))
+              );
+              if (isValidFormat) {
+                files.push(file);
+              }
+            } else if (file.type.startsWith('image/')) {
+              files.push(file);
+            }
+            resolve(files);
+          });
+        });
+      } else if (entry.isDirectory) {
+        const dirEntry = entry as FileSystemDirectoryEntry;
+        const dirReader = dirEntry.createReader();
+        
+        return new Promise((resolve) => {
+          const readEntries = async () => {
+            dirReader.readEntries(async (entries) => {
+              if (entries.length === 0) {
+                resolve(files);
+                return;
+              }
+              
+              for (const subEntry of entries) {
+                const subFiles = await processEntry(subEntry);
+                files.push(...subFiles);
+              }
+              
+              // Continue lendo se há mais entradas
+              await readEntries();
+            });
+          };
+          readEntries();
+        });
+      }
+      
+      return files;
+    };
+
+    // Processa todos os itens (arquivos e pastas)
+    for (const item of items) {
+      if (item.kind === 'file') {
+        const entry = item.webkitGetAsEntry();
+        if (entry) {
+          const files = await processEntry(entry);
+          allFiles.push(...files);
+        }
+      }
+    }
+
+    // Se não encontrou arquivos via webkitGetAsEntry, tenta o método tradicional
+    if (allFiles.length === 0) {
+      const files = Array.from(event.dataTransfer.files);
+      const imageFiles = files.filter(file => {
+        if (field.acceptedFormats && field.acceptedFormats.length > 0) {
+          return field.acceptedFormats.some(format => 
+            file.type.includes(format.replace('*', '').replace('.', ''))
+          );
+        }
+        return file.type.startsWith('image/');
+      });
+      allFiles.push(...imageFiles);
+    }
+
+    if (allFiles.length > 0) {
+      // Verifica tamanho dos arquivos
+      const maxSize = (field.maxFileSize || 5) * 1024 * 1024; // MB para bytes
+      const validFiles = allFiles.filter(file => file.size <= maxSize);
+      
+      if (validFiles.length > 0) {
+        if (field.allowMultiple) {
+          setUploadedFiles(prev => ({
+            ...prev,
+            [fieldKey]: [...(prev[fieldKey] || []), ...validFiles]
+          }));
+        } else {
+          setUploadedFiles(prev => ({
+            ...prev,
+            [fieldKey]: [validFiles[0]]
+          }));
+        }
+      }
+      
+      // Mostra feedback se alguns arquivos foram rejeitados
+      const rejectedCount = allFiles.length - validFiles.length;
+      if (rejectedCount > 0) {
+        console.warn(`${rejectedCount} arquivo(s) foram rejeitados por excederem o tamanho máximo de ${field.maxFileSize || 5}MB`);
+      }
+    }
+  };
+
+  const handleFileSelect = (fieldKey: string, field: ImageFieldData) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length > 0) {
+      if (field.allowMultiple) {
+        setUploadedFiles(prev => ({
+          ...prev,
+          [fieldKey]: [...(prev[fieldKey] || []), ...files]
+        }));
+      } else {
+        setUploadedFiles(prev => ({
+          ...prev,
+          [fieldKey]: [files[0]]
+        }));
+      }
+    }
+  };
+
+  const removeFile = (fieldKey: string, fileIndex: number) => {
+    setUploadedFiles(prev => ({
+      ...prev,
+      [fieldKey]: prev[fieldKey]?.filter((_, index) => index !== fileIndex) || []
+    }));
+  };
+
   // Verificar se há pelo menos um campo válido
   const validLists = lists.filter((list) => {
     if (!list.name || list.name.trim() === "") return false;
@@ -133,7 +303,11 @@ export default function FormPreview({ lists = [], textFields = [], numberFields 
     field.name && field.name.trim() !== ""
   );
 
-  const hasAnyValidFields = validLists.length > 0 || validTextFields.length > 0 || validNumberFields.length > 0 || validDateFields.length > 0;
+  const validImageFields = imageFields.filter((field) => 
+    field.name && field.name.trim() !== ""
+  );
+
+  const hasAnyValidFields = validLists.length > 0 || validTextFields.length > 0 || validNumberFields.length > 0 || validDateFields.length > 0 || validImageFields.length > 0;
 
   if (!hasAnyValidFields) {
     return (
@@ -147,7 +321,7 @@ export default function FormPreview({ lists = [], textFields = [], numberFields 
         }}
       >
         <Alert severity="info">
-          Adicione pelo menos um campo (lista, texto, número ou data) para visualizar o preview do formulário.
+          Adicione pelo menos um campo (lista, texto, número, data ou imagem) para visualizar o preview do formulário.
         </Alert>
       </Paper>
     );
@@ -325,6 +499,147 @@ export default function FormPreview({ lists = [], textFields = [], numberFields 
             InputLabelProps={{ shrink: true }}
           />
         ))}
+
+        {/* Renderizar campos de imagem válidos */}
+        {validImageFields.map((field, index) => {
+          const fieldKey = `image-${index}`;
+          const isDragging = dragStates[fieldKey];
+          const files = uploadedFiles[fieldKey] || [];
+          
+          return (
+            <Box key={fieldKey} sx={{ mb: 2 }}>
+              <Typography variant="subtitle1" gutterBottom>
+                {field.name} {field.required && <span style={{ color: 'red' }}>*</span>}
+              </Typography>
+              
+              <Box
+                onDragOver={handleDragOver(fieldKey)}
+                onDragEnter={handleDragEnter(fieldKey)}
+                onDragLeave={handleDragLeave(fieldKey)}
+                onDrop={handleDrop(fieldKey, field)}
+                sx={{
+                  border: `2px dashed ${
+                    isDragging 
+                      ? 'primary.main' 
+                      : isDarkMode ? 'grey.600' : 'grey.400'
+                  }`,
+                  borderRadius: 2,
+                  p: 3,
+                  textAlign: 'center',
+                  bgcolor: isDragging 
+                    ? (isDarkMode ? 'primary.dark' : 'primary.light')
+                    : (isDarkMode ? 'grey.800' : 'grey.50'),
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  transform: isDragging ? 'scale(1.02)' : 'scale(1)',
+                  '&:hover': {
+                    bgcolor: isDragging 
+                      ? (isDarkMode ? 'primary.dark' : 'primary.light')
+                      : (isDarkMode ? 'grey.700' : 'grey.100'),
+                    borderColor: 'primary.main',
+                  }
+                }}
+              >
+                <CloudUpload 
+                  sx={{ 
+                    fontSize: 40, 
+                    color: isDragging 
+                      ? 'primary.contrastText'
+                      : (isDarkMode ? 'grey.500' : 'grey.600'),
+                    mb: 1 
+                  }} 
+                />
+                <Typography 
+                  variant="body1" 
+                  gutterBottom
+                  sx={{
+                    color: isDragging ? 'primary.contrastText' : 'inherit'
+                  }}
+                >
+                  {isDragging 
+                    ? 'Solte as imagens aqui!' 
+                    : (field.allowMultiple ? 'Arraste e solte imagens aqui ou clique para selecionar' : 'Arraste e solte uma imagem aqui ou clique para selecionar')
+                  }
+                </Typography>
+                <Button
+                  variant="outlined"
+                  component="label"
+                  startIcon={<CloudUpload />}
+                  size="small"
+                  sx={{
+                    color: isDragging ? 'primary.contrastText' : 'inherit',
+                    borderColor: isDragging ? 'primary.contrastText' : 'inherit'
+                  }}
+                >
+                  Escolher Arquivo{field.allowMultiple ? 's' : ''}
+                  <input
+                    type="file"
+                    hidden
+                    multiple={field.allowMultiple}
+                    accept={field.acceptedFormats?.join(',') || 'image/*'}
+                    onChange={handleFileSelect(fieldKey, field)}
+                  />
+                </Button>
+                {field.helperText && (
+                  <Typography 
+                    variant="caption" 
+                    display="block" 
+                    sx={{ 
+                      mt: 1, 
+                      color: isDragging ? 'primary.contrastText' : 'text.secondary' 
+                    }}
+                  >
+                    {field.helperText}
+                  </Typography>
+                )}
+                <Typography 
+                  variant="caption" 
+                  display="block" 
+                  sx={{ 
+                    mt: 1, 
+                    color: isDragging ? 'primary.contrastText' : 'text.secondary' 
+                  }}
+                >
+                  Tamanho máximo: {field.maxFileSize || 5}MB
+                </Typography>
+              </Box>
+
+              {/* Lista de arquivos selecionados */}
+              {files.length > 0 && (
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Arquivos selecionados:
+                  </Typography>
+                  {files.map((file, fileIndex) => (
+                    <Box 
+                      key={fileIndex}
+                      sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'space-between',
+                        p: 1,
+                        mb: 1,
+                        bgcolor: isDarkMode ? 'grey.800' : 'grey.100',
+                        borderRadius: 1
+                      }}
+                    >
+                      <Typography variant="body2" sx={{ flex: 1 }}>
+                        {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                      </Typography>
+                      <Button
+                        size="small"
+                        color="error"
+                        onClick={() => removeFile(fieldKey, fileIndex)}
+                      >
+                        Remover
+                      </Button>
+                    </Box>
+                  ))}
+                </Box>
+              )}
+            </Box>
+          );
+        })}
       </Box>
 
       <Divider sx={{ my: 3 }} />
