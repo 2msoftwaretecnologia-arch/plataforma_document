@@ -67,8 +67,6 @@ interface DateFieldData {
   name: string;
   dateType: "date" | "datetime-local" | "time" | "month";
   value?: string;
-  minDate?: string;
-  maxDate?: string;
   required?: boolean;
   helperText?: string;
 }

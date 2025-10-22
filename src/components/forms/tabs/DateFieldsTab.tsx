@@ -51,8 +51,6 @@ export default function DateFieldsTab({ control }: DateFieldsTabProps) {
       name: "",
       dateType: defaultDateType,
       value: "",
-      minDate: "",
-      maxDate: "",
       required: false,
       helperText: "",
     });

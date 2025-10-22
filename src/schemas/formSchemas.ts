@@ -34,8 +34,6 @@ export const dateFieldSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
   dateType: z.enum(["date", "datetime-local", "time", "month"]),
   value: z.string().optional(),
-  minDate: z.string().optional(),
-  maxDate: z.string().optional(),
   required: z.boolean().default(false),
   helperText: z.string().optional(),
 });
