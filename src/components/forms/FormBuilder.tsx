@@ -40,7 +40,7 @@ export default function FormBuilder({
     watch,
     formState: { errors, isValid },
   } = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema as any),
     defaultValues: initialData || {
       lists: [],
       textFields: [],
@@ -74,11 +74,20 @@ export default function FormBuilder({
   return (
     <Container maxWidth="md">
       <Box sx={{ py: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Construtor de Formulários
+        <Typography variant="h4" component="h1" gutterBottom sx={{ 
+          textAlign: 'center',
+          background: isDarkMode 
+            ? 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)'
+            : 'linear-gradient(45deg, #1976D2 30%, #42A5F5 90%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+          mb: 2
+        }}>
+          🏗️ Construtor de Formulários
         </Typography>
         
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 4, textAlign: 'center', maxWidth: '600px', mx: 'auto' }}>
           Crie campos de diferentes tipos para seu formulário: listas de opções, campos de texto, campos numéricos, campos de data e campos de imagem.
         </Typography>
 
@@ -131,13 +140,33 @@ export default function FormBuilder({
           <Divider sx={{ mb: 4 }} />
 
           {/* Preview do Formulário */}
-          <FormPreview 
-            lists={watchedData.lists || []} 
-            textFields={watchedData.textFields || []}
-            numberFields={watchedData.numberFields || []}
-            dateFields={watchedData.dateFields || []}
-            imageFields={watchedData.imageFields || []}
-          />
+          {(watchedData.lists?.length || watchedData.textFields?.length || watchedData.numberFields?.length || watchedData.dateFields?.length || watchedData.imageFields?.length) ? (
+            <FormPreview 
+              lists={watchedData.lists || []} 
+              textFields={watchedData.textFields || []}
+              numberFields={watchedData.numberFields || []}
+              dateFields={watchedData.dateFields || []}
+              imageFields={watchedData.imageFields || []}
+            />
+          ) : (
+            <Paper 
+              elevation={1} 
+              sx={{ 
+                p: 4, 
+                bgcolor: isDarkMode ? 'grey.900' : 'grey.50',
+                border: isDarkMode ? '1px solid' : 'none',
+                borderColor: isDarkMode ? 'grey.700' : 'transparent',
+                textAlign: 'center'
+              }}
+            >
+              <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
+                🎯 Preview do Formulário
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Adicione campos usando as abas acima para ver o preview do seu formulário aqui
+              </Typography>
+            </Paper>
+          )}
 
           <Divider sx={{ my: 4, borderColor: isDarkMode ? 'grey.700' : 'grey.300' }} />
 
@@ -175,13 +204,19 @@ export default function FormBuilder({
           </Paper>
 
           {/* Botões de ação */}
-          <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
+          <Box sx={{ display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap" }}>
             <Button
               onClick={handlePreview}
               startIcon={<Preview />}
               variant="outlined"
               size="large"
               disabled={!isValid}
+              sx={{ 
+                minWidth: 160,
+                '&:disabled': {
+                  opacity: 0.6
+                }
+              }}
             >
               Visualizar
             </Button>
@@ -192,6 +227,12 @@ export default function FormBuilder({
               variant="contained"
               size="large"
               disabled={!isValid}
+              sx={{ 
+                minWidth: 160,
+                '&:disabled': {
+                  opacity: 0.6
+                }
+              }}
             >
               Salvar Formulário
             </Button>
@@ -200,7 +241,12 @@ export default function FormBuilder({
           {/* Informações de validação */}
           {!isValid && (
             <Alert severity="info" sx={{ mt: 3 }}>
-              Adicione pelo menos um campo para habilitar as ações.
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                📝 Adicione pelo menos um campo para habilitar as ações
+              </Typography>
+              <Typography variant="caption" sx={{ display: 'block', mt: 1, opacity: 0.8 }}>
+                Use as abas acima para criar listas, campos de texto, números, datas ou imagens
+              </Typography>
             </Alert>
           )}
         </form>
