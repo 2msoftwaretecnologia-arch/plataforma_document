@@ -12,6 +12,7 @@ import {
   DarkMode,
   DashboardOutlined,
   DescriptionOutlined,
+  FolderOutlined,
   HistoryOutlined,
   LightMode,
   LogoutOutlined,
@@ -29,6 +30,7 @@ export default function Sidebar() {
     { label: "Dashboard", icon: DashboardOutlined, href: "/" },
     { label: "Mapeamento", icon: MapOutlined, href: "/mapeamento" },
     { label: "Criar Formulário", icon: DescriptionOutlined, href: "/criar-formulario" },
+    { label: "Documentos", icon: FolderOutlined, href: "/documentos" },
     { label: "Histórico", icon: HistoryOutlined, href: "/historico" },
     { label: "Plano", icon: WorkspacePremiumOutlined, href: "/plano" },
   ];
@@ -76,7 +78,7 @@ export default function Sidebar() {
       </div>
 
       {/* Itens de navegação */}
-      <nav className="mt-4 flex-1 space-y-1">
+      <nav className="mt-4 flex-1 space-y-1 mx-1">
         {menuItems.map((item) => (
           <SidebarItem
             key={item.href}
