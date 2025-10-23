@@ -1,0 +1,4 @@
+Flask==3.0.3
+mammoth==1.6.0
+html2docx==1.6.0
+python-slugify==8.0.4
