@@ -40,7 +40,7 @@ export default function Sidebar() {
   return (
     <aside
       className={clsx(
-        "bg-background border-border flex h-screen flex-col border-r transition-all duration-300",
+        "bg-background border-border flex h-screen flex-col border-r transition-all duration-300 sticky top-0",
         isOpen ? "w-60" : "w-12",
       )}
     >
