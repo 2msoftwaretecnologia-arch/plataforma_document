@@ -9,6 +9,7 @@ import SidebarItem from "./SidebarItem";
 // Ícones do Material UI
 import {
   Close as CloseIcon,
+  ContentCut as SplitIcon,
   DarkMode,
   DashboardOutlined,
   DescriptionOutlined,
@@ -31,6 +32,7 @@ export default function Sidebar() {
     { label: "Mapeamento", icon: MapOutlined, href: "/mapeamento" },
     { label: "Criar Formulário", icon: DescriptionOutlined, href: "/criar-formulario" },
     { label: "Documentos", icon: FolderOutlined, href: "/documentos" },
+    { label: "Dividir DOCX", icon: SplitIcon, href: "/split-docx" },
     { label: "Histórico", icon: HistoryOutlined, href: "/historico" },
     { label: "Plano", icon: WorkspacePremiumOutlined, href: "/plano" },
   ];
