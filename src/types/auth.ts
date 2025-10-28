@@ -29,8 +29,15 @@ export interface AuthState {
   isLoading: boolean;
 }
 
+export type RegisterCredentials = {
+  name: string;
+  email: string;
+  password: string;
+};
+
 export interface AuthContextType extends AuthState {
   login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => void;
   checkAuth: () => void;
+  register: (data: RegisterCredentials) => Promise<void>;
 }

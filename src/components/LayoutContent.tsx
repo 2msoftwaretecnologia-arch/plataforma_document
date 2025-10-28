@@ -14,12 +14,12 @@ interface LayoutContentProps {
 
 export default function LayoutContent({ children }: LayoutContentProps) {
   const pathname = usePathname();
-  const isLoginPage = pathname === "/login";
+  // Treat any /login/* routes as public (login, register, etc.)
+  const isAuthRoute = pathname?.startsWith("/login");
   const { theme } = useTheme();
   const muiTheme = getMuiTheme(theme);
 
-  // If on login page, render without sidebar and protection
-  if (isLoginPage) {
+  if (isAuthRoute) {
     return (
       <MuiThemeProvider theme={muiTheme}>
         <CssBaseline />
@@ -28,7 +28,6 @@ export default function LayoutContent({ children }: LayoutContentProps) {
     );
   }
 
-  // Protected pages with sidebar
   return (
     <MuiThemeProvider theme={muiTheme}>
       <CssBaseline />

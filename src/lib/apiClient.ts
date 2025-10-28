@@ -53,3 +53,24 @@ export async function validateToken(token: string): Promise<User | null> {
     return null;
   }
 }
+
+export async function registerUser(data: {
+  name: string;
+  email: string;
+  password: string;
+}) {
+  const response = await fetch("/api/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const { message } = await response.json().catch(() => ({
+      message: "Erro ao registrar usuário",
+    }));
+    throw new Error(message);
+  }
+
+  return response.json(); 
+}

@@ -20,7 +20,6 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-// Validation schema
 const loginSchema = z.object({
   email: z.email("Email inválido"),
   password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
@@ -43,7 +42,6 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
-  // Redirect if already authenticated
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
       router.push("/");
@@ -86,7 +84,6 @@ export default function LoginPage() {
     );
   }
 
-  // Don't render login form if already authenticated
   if (isAuthenticated) {
     return null;
   }
@@ -189,7 +186,18 @@ export default function LoginPage() {
           </Button>
 
           <Box sx={{ mt: 2 }}>
-            <Typography variant="body2" color="text.secondary" align="center">
+            <Typography variant="body2" align="center" sx={{ mt: 1 }}>
+              Não tem uma conta?
+              <Button
+                onClick={() => router.push("/login/register")}
+                size="small"
+                sx={{ textTransform: "none", ml: 1 }}
+              >
+                Criar conta
+              </Button>
+            </Typography>
+
+            <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 3 }}>
               Credenciais de teste:
             </Typography>
             <Typography variant="body2" color="text.secondary" align="center">

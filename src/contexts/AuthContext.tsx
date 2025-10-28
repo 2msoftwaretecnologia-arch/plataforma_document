@@ -5,7 +5,7 @@ import type {
   LoginCredentials,
   User,
 } from "@/types/auth";
-import { loginUser, validateToken as validateTokenAPI } from "@/lib/apiClient";
+import { loginUser, validateToken as validateTokenAPI, registerUser } from "@/lib/apiClient";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -19,7 +19,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  // Check authentication on mount
   useEffect(() => {
     checkAuth();
   }, []);
@@ -51,9 +50,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const register = async (data: { name: string; email: string; password: string }) => {
+    try {
+      const response = await registerUser(data);
+
+      setUser(response.user);
+      setToken(response.token);
+      localStorage.setItem(TOKEN_KEY, response.token);
+
+      router.push("/");
+    } catch (error) {
+      console.error("Erro ao registrar usuário:", error);
+      throw error;
+    }
+  };
+
   const login = async (credentials: LoginCredentials) => {
     try {
-      // Faz login via API route (server-side)
       const response = await loginUser(credentials);
 
       setUser(response.user);
@@ -82,6 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     login,
     logout,
     checkAuth,
+    register
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
