@@ -15,6 +15,7 @@ interface LayoutContentProps {
 export default function LayoutContent({ children }: LayoutContentProps) {
   const pathname = usePathname();
   const isLoginPage = pathname === "/login";
+  const isViewerPage = pathname?.startsWith("/viewer-documentos/");
   const { theme } = useTheme();
   const muiTheme = getMuiTheme(theme);
 
@@ -35,7 +36,7 @@ export default function LayoutContent({ children }: LayoutContentProps) {
       <ProtectedRoute>
         <div className="flex">
           <Sidebar />
-          <main className="flex-1 p-8">{children}</main>
+          <main className={isViewerPage ? "flex-1" : "flex-1 p-8"}>{children}</main>
         </div>
       </ProtectedRoute>
     </MuiThemeProvider>

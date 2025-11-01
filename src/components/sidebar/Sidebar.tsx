@@ -19,6 +19,7 @@ import {
   LogoutOutlined,
   MapOutlined,
   Menu as MenuIcon,
+  Visibility as ViewerIcon,
   WorkspacePremiumOutlined,
 } from "@mui/icons-material";
 
@@ -32,7 +33,8 @@ export default function Sidebar() {
     { label: "Mapeamento", icon: MapOutlined, href: "/mapeamento" },
     { label: "Criar Formulário", icon: DescriptionOutlined, href: "/criar-formulario" },
     { label: "Documentos", icon: FolderOutlined, href: "/documentos" },
-    { label: "Dividir DOCX", icon: SplitIcon, href: "/split-docx" },
+    { label: "Viewer DOCX", icon: ViewerIcon, href: "/viewer-documentos" },
+    { label: "Analisar DOCX", icon: SplitIcon, href: "/split-docx" },
     { label: "Histórico", icon: HistoryOutlined, href: "/historico" },
     { label: "Plano", icon: WorkspacePremiumOutlined, href: "/plano" },
   ];
