@@ -4,7 +4,7 @@ import type {
   AuthContextType,
   LoginCredentials,
   User,
-} from "@/types/auth";
+} from "@/types/api/auth";
 import { loginUser, validateToken as validateTokenAPI, registerUser } from "@/lib/apiClient";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";

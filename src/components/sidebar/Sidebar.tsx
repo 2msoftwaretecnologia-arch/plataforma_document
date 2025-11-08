@@ -11,14 +11,13 @@ import {
   Close as CloseIcon,
   DarkMode,
   DashboardOutlined,
-  DescriptionOutlined,
   FolderOutlined,
   HistoryOutlined,
   LightMode,
   LogoutOutlined,
   MapOutlined,
   Menu as MenuIcon,
-  WorkspacePremiumOutlined,
+  WorkspacePremiumOutlined
 } from "@mui/icons-material";
 
 export default function Sidebar() {
@@ -28,8 +27,7 @@ export default function Sidebar() {
 
   const menuItems = [
     { label: "Dashboard", icon: DashboardOutlined, href: "/" },
-    { label: "Mapeamento", icon: MapOutlined, href: "/mapeamento" },
-    { label: "Criar Formulário", icon: DescriptionOutlined, href: "/criar-formulario" },
+    { label: "Templates", icon: MapOutlined, href: "/templates" },
     { label: "Documentos", icon: FolderOutlined, href: "/documentos" },
     { label: "Histórico", icon: HistoryOutlined, href: "/historico" },
     { label: "Plano", icon: WorkspacePremiumOutlined, href: "/plano" },

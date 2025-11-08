@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/contexts/AuthContext";
-import type { LoginCredentials } from "@/types/auth";
+import type { LoginCredentials } from "@/types/api/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LockOutlined, Visibility, VisibilityOff } from "@mui/icons-material";
 import {

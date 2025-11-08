@@ -1,4 +1,4 @@
-import type { JWTPayload, LoginCredentials, LoginResponse, User } from "@/types/auth";
+import type { JWTPayload, LoginCredentials, LoginResponse, User } from "@/types/api/auth";
 
 // Mock user database
 const MOCK_USERS = [

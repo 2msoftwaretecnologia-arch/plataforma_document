@@ -1,4 +1,4 @@
-import type { LoginCredentials, LoginResponse, User } from "@/types/auth";
+import type { LoginCredentials, LoginResponse, User } from "@/types/api/auth";
 
 /**
  * API Client para fazer requisições ao backend (Next.js API Routes)

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import type { LoginCredentials, User, JWTPayload } from "@/types/auth";
+import type { LoginCredentials, User, JWTPayload } from "@/types/api/auth";
 
 // Mock user database
 const MOCK_USERS = [
