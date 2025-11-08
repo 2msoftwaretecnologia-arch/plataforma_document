@@ -55,5 +55,9 @@ next-env.d.ts
 /database
 
 # AI
+.claude/
 CLAUDE.md
 PLAN.md
+
+# pasta de test como storage
+/storage/*

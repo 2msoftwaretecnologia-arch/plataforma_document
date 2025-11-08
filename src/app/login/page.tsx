@@ -27,7 +27,7 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-export default function LoginPage() {
+export default function Login() {
   const { login, isAuthenticated, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const [error, setError] = useState<string>("");
@@ -89,48 +89,53 @@ export default function LoginPage() {
   }
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          minHeight: "100vh",
-          paddingTop: "10vh",
-        }}
-      >
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
+      }}
+    >
+      <Container component="main" maxWidth="xs">
         <Box
           sx={{
             display: "flex",
+            flexDirection: "column",
             alignItems: "center",
-            justifyContent: "center",
-            width: 56,
-            height: 56,
-            borderRadius: "50%",
-            bgcolor: "primary.main",
-            mb: 2,
           }}
         >
-          <LockOutlined sx={{ color: "white", fontSize: 32 }} />
-        </Box>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 56,
+              height: 56,
+              borderRadius: "50%",
+              bgcolor: "primary.main",
+              mb: 2,
+            }}
+          >
+            <LockOutlined sx={{ color: "white", fontSize: 32 }} />
+          </Box>
 
-        <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
-          Entrar na Plataforma
-        </Typography>
+          <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
+            Entrar na Plataforma
+          </Typography>
 
-        {error && (
-          <Alert severity="error" sx={{ width: "100%", mb: 2 }}>
-            {error}
-          </Alert>
-        )}
+          {error && (
+            <Alert severity="error" sx={{ width: "100%", mb: 2 }}>
+              {error}
+            </Alert>
+          )}
 
-        <Box
-          component="form"
-          onSubmit={handleSubmit(onSubmit)}
-          noValidate
-          sx={{ width: "100%" }}
-        >
+          <Box
+            component="form"
+            onSubmit={handleSubmit(onSubmit)}
+            noValidate
+            sx={{ width: "100%" }}
+          >
           <TextField
             margin="normal"
             required
@@ -207,8 +212,9 @@ export default function LoginPage() {
               Senha: password123
             </Typography>
           </Box>
+          </Box>
         </Box>
-      </Box>
-    </Container>
+      </Container>
+    </Box>
   );
 }

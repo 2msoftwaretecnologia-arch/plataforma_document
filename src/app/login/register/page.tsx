@@ -15,7 +15,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -33,7 +33,7 @@ const registerSchema = z
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
-export default function RegisterPage() {
+export default function Register() {
   const { register: registerUser, isAuthenticated, isLoading: authLoading } = useAuth();
   const router = useRouter();
 
@@ -50,11 +50,11 @@ export default function RegisterPage() {
     resolver: zodResolver(registerSchema),
   });
 
-//  useEffect(() => {
- //   if (!authLoading && isAuthenticated) {
- //     router.push("/");
-//    }
-//  }, [isAuthenticated, authLoading, router]);
+  //  useEffect(() => {
+  //   if (!authLoading && isAuthenticated) {
+  //     router.push("/");
+  //    }
+  //  }, [isAuthenticated, authLoading, router]);
 
   const onSubmit = async (data: RegisterFormData) => {
     setError("");
@@ -67,7 +67,7 @@ export default function RegisterPage() {
         password: data.password,
       });
 
-      router.push("/login/loginpage");
+      router.push("/login");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao registrar usuário");
     } finally {
@@ -221,7 +221,7 @@ export default function RegisterPage() {
 
           <Typography variant="body2" align="center" sx={{ mt: 2 }}>
             Já tem uma conta?{" "}
-            <Button onClick={() => router.push("/login/loginpage")}>Entrar</Button>
+            <Button onClick={() => router.push("/login")}>Entrar</Button>
           </Typography>
         </Box>
       </Box>
