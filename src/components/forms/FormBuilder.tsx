@@ -29,15 +29,19 @@ export default function FormBuilder({
   onSave,
   onPreview,
   initialData,
+  templateId,
+  templateName,
 }: FormBuilderProps) {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === 'dark';
   const [activeTab, setActiveTab] = React.useState(0);
+  const isEditMode = !!templateId;
   
   const {
     control,
     handleSubmit,
     watch,
+    reset,
     formState: { errors, isValid },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema as any),
@@ -50,6 +54,13 @@ export default function FormBuilder({
     },
     mode: "onChange",
   });
+
+  // Reset form when initialData changes (e.g., template loads)
+  React.useEffect(() => {
+    if (initialData) {
+      reset(initialData);
+    }
+  }, [initialData, reset]);
 
   const watchedData = watch();
 
@@ -74,9 +85,17 @@ export default function FormBuilder({
   return (
     <Container maxWidth="md">
       <Box sx={{ py: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom sx={{ 
+        {isEditMode && templateName && (
+          <Alert severity="info" sx={{ mb: 3 }}>
+            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+              Editando formulário do template: <strong>{templateName}</strong>
+            </Typography>
+          </Alert>
+        )}
+
+        <Typography variant="h4" component="h1" gutterBottom sx={{
           textAlign: 'center',
-          background: isDarkMode 
+          background: isDarkMode
             ? 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)'
             : 'linear-gradient(45deg, #1976D2 30%, #42A5F5 90%)',
           WebkitBackgroundClip: 'text',
@@ -84,11 +103,11 @@ export default function FormBuilder({
           backgroundClip: 'text',
           mb: 2
         }}>
-          🏗️ Construtor de Formulários
+          🏗️ {isEditMode ? 'Editar' : 'Criar'} Formulário
         </Typography>
-        
+
         <Typography variant="body1" color="text.secondary" sx={{ mb: 4, textAlign: 'center', maxWidth: '600px', mx: 'auto' }}>
-          Crie campos de diferentes tipos para seu formulário: listas de opções, campos de texto, campos numéricos, campos de data e campos de imagem.
+          {isEditMode ? 'Edite os campos do formulário do template.' : 'Crie campos de diferentes tipos para seu formulário: listas de opções, campos de texto, campos numéricos, campos de data e campos de imagem.'}
         </Typography>
 
         <form onSubmit={handleSubmit(onSubmit)}>

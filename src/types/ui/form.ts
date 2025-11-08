@@ -14,4 +14,6 @@ export interface FormBuilderProps {
   onSave?: (data: FormData) => void;
   onPreview?: (data: FormData) => void;
   initialData?: FormData;
+  templateId?: string;
+  templateName?: string;
 }

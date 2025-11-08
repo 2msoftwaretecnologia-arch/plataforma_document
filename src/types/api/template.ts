@@ -54,6 +54,19 @@ export interface CreateTemplateRequest {
 }
 
 /**
+ * Update template request payload
+ */
+export interface UpdateTemplateRequest {
+  nome?: string;
+  descricao?: string;
+  arquivo_original?: string;
+  metadados?: TemplateMetadata;
+  formulario?: TemplateFormField[];
+  chaves?: TemplateKey[];
+  ativo?: boolean;
+}
+
+/**
  * Computed status for template display
  */
 export interface TemplateStatus {

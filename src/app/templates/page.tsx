@@ -1,12 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Plus, FileText, CheckCircle, XCircle, Edit, Map, FileCheck } from 'lucide-react';
-import { getTemplates, createTemplate } from '@/services/templateService';
-import type { Template, TemplateStatus } from '@/types/api/template';
 import AddTemplateModal from '@/components/templates/AddTemplateModal';
+import { createTemplate, getTemplates } from '@/services/templateService';
+import type { Template, TemplateStatus } from '@/types/api/template';
+import { CheckCircle, Edit, FileCheck, FileText, Map, Plus, XCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function Templates() {
+  const router = useRouter();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +53,7 @@ export default function Templates() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-muted-foreground">Carregando templates...</p>
@@ -62,7 +64,7 @@ export default function Templates() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="bg-background flex items-center justify-center">
         <div className="text-center">
           <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <p className="text-foreground font-semibold mb-2">Erro ao carregar templates</p>
@@ -79,7 +81,7 @@ export default function Templates() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-8">
+    <div className="bg-background p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -96,7 +98,7 @@ export default function Templates() {
             return (
               <div
                 key={template.id}
-                className="bg-card border-2 border-border rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col aspect-square"
+                className="bg-card border-2 border-border rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col h-full"
               >
                 {/* Card Header */}
                 <div className="p-6 flex-grow flex flex-col">
@@ -159,8 +161,9 @@ export default function Templates() {
                 {/* Card Actions */}
                 <div className="p-3 border-t border-border flex gap-1.5 justify-end flex-shrink-0 bg-muted/30">
                   <button
+                    onClick={() => router.push(`/criar-formulario?templateId=${template.id}`)}
                     className="p-2 rounded-lg hover:bg-background transition-colors"
-                    title="Editar"
+                    title="Editar formulário"
                   >
                     <Edit className="w-4 h-4 text-foreground" />
                   </button>
@@ -171,6 +174,7 @@ export default function Templates() {
                     <Map className="w-4 h-4 text-foreground" />
                   </button>
                   <button
+                    onClick={() => router.push(`/criar-formulario?templateId=${template.id}`)}
                     className="p-2 rounded-lg hover:bg-background transition-colors"
                     title="Criar formulário"
                   >
@@ -184,7 +188,7 @@ export default function Templates() {
           {/* Add New Template Card */}
           <button
             onClick={() => setIsModalOpen(true)}
-            className="bg-card border-2 border-dashed border-border rounded-xl shadow-lg hover:shadow-xl hover:border-primary transition-all duration-300 flex flex-col items-center justify-center aspect-square group"
+            className="bg-card border-2 border-dashed border-border rounded-xl shadow-lg hover:shadow-xl hover:border-primary transition-all duration-300 flex flex-col items-center justify-center h-full min-h-[300px] group"
           >
             <div className="p-4 bg-primary/10 rounded-full mb-4 group-hover:bg-primary/20 transition-colors">
               <Plus className="w-12 h-12 text-primary" />

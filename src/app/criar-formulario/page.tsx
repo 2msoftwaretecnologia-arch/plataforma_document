@@ -1,54 +1,95 @@
 "use client";
 
-import React, { useState } from "react";
-import { Box, Alert, Snackbar } from "@mui/material";
+import { formDataToTemplate, templateToFormData } from "@/lib/formMapper";
+import { getTemplateById, updateTemplate } from "@/services/templateService";
+import type { Template } from "@/types/api/template";
+import type { FormData } from "@/types/ui/form";
+import { Alert, Box, CircularProgress, Snackbar } from "@mui/material";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import FormBuilder from "../../components/forms/FormBuilder";
 
-interface FormData {
-  lists?: Array<{
-    name: string;
-    options: Array<{ value: string }>;
-    multiSelect?: boolean; // Adiciona suporte para seleção múltipla
-  }>;
-  textFields?: Array<{
-    name: string;
-    value?: string;
-  }>;
-  numberFields?: Array<{
-    name: string;
-    value?: number;
-    min?: number;
-    max?: number;
-    allowDecimals?: boolean;
-    required?: boolean;
-  }>;
-}
+function CriarFormularioContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const templateId = searchParams?.get('templateId');
 
-export default function CriarFormulario() {
-  const [savedData, setSavedData] = useState<FormData | null>(null);
+  const [template, setTemplate] = useState<Template | null>(null);
+  const [initialData, setInitialData] = useState<FormData | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(!!templateId);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSave = (data: FormData) => {
-    setSavedData(data);
-    setShowSuccess(true);
-    console.log("Formulário salvo:", data);
-    
-    // Aqui você pode implementar a lógica para salvar no backend
-    // Por exemplo: await saveFormToAPI(data);
+  useEffect(() => {
+    if (templateId) {
+      loadTemplate(templateId);
+    }
+  }, [templateId]);
+
+  const loadTemplate = async (id: string) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      console.log('Carregando template ID:', id);
+      const data = await getTemplateById(id);
+      console.log('Template carregado:', data);
+
+      if (!data || !data.id) {
+        throw new Error('Template inválido ou ID não encontrado');
+      }
+
+      setTemplate(data);
+      setInitialData(templateToFormData(data.formulario));
+    } catch (err) {
+      console.error('Erro ao carregar template:', err);
+      setError(err instanceof Error ? err.message : 'Erro ao carregar template');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSave = async (data: FormData) => {
+    try {
+      if (template) {
+        const formulario = formDataToTemplate(data);
+        console.log('Salvando formulário:', { templateId: template.id, formulario });
+        await updateTemplate(template.id, { formulario });
+        setShowSuccess(true);
+
+        // Redirect to templates page after 1.5 seconds
+        setTimeout(() => {
+          router.push('/templates');
+        }, 1500);
+      } else {
+        setError('Nenhum template selecionado para editar');
+      }
+    } catch (err) {
+      console.error('Erro ao salvar:', err);
+      setError(err instanceof Error ? err.message : 'Erro ao salvar formulário');
+    }
   };
 
   const handlePreview = (data: FormData) => {
     console.log("Preview do formulário:", data);
-    // Aqui você pode implementar a lógica de preview
-    // Por exemplo: abrir um modal ou navegar para uma página de preview
+    // TODO: Implementar preview modal ou navegação
   };
+
+  if (isLoading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box>
       <FormBuilder
         onSave={handleSave}
         onPreview={handlePreview}
-        initialData={savedData || undefined}
+        initialData={initialData}
+        templateId={template?.id}
+        templateName={template?.nome}
       />
 
       <Snackbar
@@ -65,6 +106,33 @@ export default function CriarFormulario() {
           Formulário salvo com sucesso!
         </Alert>
       </Snackbar>
+
+      <Snackbar
+        open={!!error}
+        autoHideDuration={6000}
+        onClose={() => setError(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert
+          onClose={() => setError(null)}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
+          {error}
+        </Alert>
+      </Snackbar>
     </Box>
+  );
+}
+
+export default function CriarFormulario() {
+  return (
+    <Suspense fallback={
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+        <CircularProgress />
+      </Box>
+    }>
+      <CriarFormularioContent />
+    </Suspense>
   );
 }

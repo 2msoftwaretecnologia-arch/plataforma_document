@@ -3,6 +3,7 @@ import type {
   Template,
   TemplatesResponse,
   CreateTemplateRequest,
+  UpdateTemplateRequest,
 } from '@/types/api/template';
 
 /**
@@ -12,14 +13,31 @@ import type {
 const TEMPLATES_BASE = `${env.API_BASE_URL}/templates`;
 
 /**
+ * Get authentication headers with JWT token
+ */
+function getAuthHeaders(): HeadersInit {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+
+  // Add JWT token if available (client-side only)
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('token');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+
+  return headers;
+}
+
+/**
  * Get all templates
  */
 export async function getTemplates(): Promise<Template[]> {
   const response = await fetch(`${TEMPLATES_BASE}/`, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(),
   });
 
   if (!response.ok) {
@@ -39,9 +57,7 @@ export async function getTemplates(): Promise<Template[]> {
 export async function getTemplate(id: string): Promise<Template> {
   const response = await fetch(`${TEMPLATES_BASE}/${id}/`, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(),
   });
 
   if (!response.ok) {
@@ -51,8 +67,17 @@ export async function getTemplate(id: string): Promise<Template> {
     throw new Error(error.message || 'Failed to fetch template');
   }
 
-  return response.json();
+  const data = await response.json();
+  console.log('API Response for getTemplate:', data);
+
+  // Check if response is wrapped in a data field (like getTemplates)
+  return data.data || data;
 }
+
+/**
+ * Alias for getTemplate (for consistency)
+ */
+export const getTemplateById = getTemplate;
 
 /**
  * Create new template
@@ -62,9 +87,7 @@ export async function createTemplate(
 ): Promise<Template> {
   const response = await fetch(`${TEMPLATES_BASE}/`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(),
     body: JSON.stringify(data),
   });
 
@@ -83,13 +106,11 @@ export async function createTemplate(
  */
 export async function updateTemplate(
   id: string,
-  data: Partial<CreateTemplateRequest>,
+  data: UpdateTemplateRequest,
 ): Promise<Template> {
   const response = await fetch(`${TEMPLATES_BASE}/${id}/`, {
     method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(),
     body: JSON.stringify(data),
   });
 
@@ -109,6 +130,7 @@ export async function updateTemplate(
 export async function deleteTemplate(id: string): Promise<void> {
   const response = await fetch(`${TEMPLATES_BASE}/${id}/`, {
     method: 'DELETE',
+    headers: getAuthHeaders(),
   });
 
   if (!response.ok) {
