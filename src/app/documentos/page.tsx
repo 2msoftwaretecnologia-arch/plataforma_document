@@ -305,22 +305,14 @@ export default function DocumentosPage() {
                   </TableCell>
                   <TableCell align="center">
                     <div className="flex items-center justify-center gap-2">
-                      <Tooltip title="Visualizar">
+                      <Tooltip title="Editar">
                         <Link href={`/documentos/${doc.id}`}>
                           <IconButton
                             size="small"
                           >
-                            <EyeIcon fontSize="small" />
+                          <EditIcon fontSize="small" />
                           </IconButton>
                         </Link>
-                      </Tooltip>
-                      <Tooltip title="Editar">
-                        <IconButton
-                          size="small"
-                          onClick={() => handleOpenDialog(doc)}
-                        >
-                          <EditIcon fontSize="small" />
-                        </IconButton>
                       </Tooltip>
                       {doc.status_render === "concluido" && doc.arquivo_renderizado && (
                         <Tooltip title="Download">
