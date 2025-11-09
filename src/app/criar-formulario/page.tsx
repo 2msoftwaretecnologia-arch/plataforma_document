@@ -1,71 +1,55 @@
 "use client";
 
+import FormBuilder from "@/components/forms/builder/FormBuilder";
+import LoadingState from "@/components/shared/LoadingState";
+import { useTemplate, useUpdateTemplate } from "@/hooks/queries/useTemplates";
 import { formDataToTemplate, templateToFormData } from "@/lib/formMapper";
-import { getTemplateById, updateTemplate } from "@/services/templateService";
-import type { Template } from "@/types/api/template";
 import type { FormData } from "@/types/ui/form";
-import { Alert, Box, CircularProgress, Snackbar } from "@mui/material";
-import { useSearchParams, useRouter } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
-import FormBuilder from "../../components/forms/builder/FormBuilder";
+import { Alert, Box, Snackbar } from "@mui/material";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 
 function CriarFormularioContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const templateId = searchParams?.get('templateId');
+  const templateId = searchParams?.get("templateId");
 
-  const [template, setTemplate] = useState<Template | null>(null);
-  const [initialData, setInitialData] = useState<FormData | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(!!templateId);
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (templateId) {
-      loadTemplate(templateId);
-    }
-  }, [templateId]);
-
-  const loadTemplate = async (id: string) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      console.log('Carregando template ID:', id);
-      const data = await getTemplateById(id);
-      console.log('Template carregado:', data);
-
-      if (!data || !data.id) {
-        throw new Error('Template inválido ou ID não encontrado');
-      }
-
-      setTemplate(data);
-      setInitialData(templateToFormData(data.formulario));
-    } catch (err) {
-      console.error('Erro ao carregar template:', err);
-      setError(err instanceof Error ? err.message : 'Erro ao carregar template');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // TanStack Query hooks
+  const { data: template, isLoading } = useTemplate(templateId);
+  const updateMutation = useUpdateTemplate();
 
   const handleSave = async (data: FormData) => {
     try {
-      if (template) {
-        const formulario = formDataToTemplate(data);
-        console.log('Salvando formulário:', { templateId: template.id, formulario });
-        await updateTemplate(template.id, { formulario });
-        setShowSuccess(true);
-
-        // Redirect to templates page after 1.5 seconds
-        setTimeout(() => {
-          router.push('/templates');
-        }, 1500);
-      } else {
-        setError('Nenhum template selecionado para editar');
+      if (!template) {
+        setError("Nenhum template selecionado para editar");
+        return;
       }
+
+      const formulario = formDataToTemplate(data);
+      console.log("Salvando formulário:", {
+        templateId: template.id,
+        formulario,
+      });
+
+      await updateMutation.mutateAsync({
+        id: template.id,
+        data: { formulario },
+      });
+
+      setShowSuccess(true);
+
+      // Redirect to templates page after 1.5 seconds
+      setTimeout(() => {
+        router.push("/templates");
+      }, 1500);
     } catch (err) {
-      console.error('Erro ao salvar:', err);
-      setError(err instanceof Error ? err.message : 'Erro ao salvar formulário');
+      console.error("Erro ao salvar:", err);
+      setError(
+        err instanceof Error ? err.message : "Erro ao salvar formulário"
+      );
     }
   };
 
@@ -75,11 +59,7 @@ function CriarFormularioContent() {
   };
 
   if (isLoading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-        <CircularProgress />
-      </Box>
-    );
+    return <LoadingState message="Carregando template..." />;
   }
 
   return (
@@ -87,7 +67,9 @@ function CriarFormularioContent() {
       <FormBuilder
         onSave={handleSave}
         onPreview={handlePreview}
-        initialData={initialData}
+        initialData={
+          template ? templateToFormData(template.formulario) : undefined
+        }
         templateId={template?.id}
         templateName={template?.nome}
       />
@@ -113,11 +95,7 @@ function CriarFormularioContent() {
         onClose={() => setError(null)}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
-        <Alert
-          onClose={() => setError(null)}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
+        <Alert onClose={() => setError(null)} severity="error" sx={{ width: "100%" }}>
           {error}
         </Alert>
       </Snackbar>
@@ -127,11 +105,7 @@ function CriarFormularioContent() {
 
 export default function CriarFormulario() {
   return (
-    <Suspense fallback={
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-        <CircularProgress />
-      </Box>
-    }>
+    <Suspense fallback={<LoadingState message="Carregando..." />}>
       <CriarFormularioContent />
     </Suspense>
   );

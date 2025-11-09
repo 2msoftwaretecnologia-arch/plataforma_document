@@ -1,19 +1,150 @@
 import type { LoginCredentials, LoginResponse, User } from "@/types/api/auth";
+import { env } from "@/config/env";
 
 /**
- * API Client para fazer requisições ao backend (Next.js API Routes)
- * Todas as funções aqui fazem chamadas HTTP para /api/auth/*
+ * API Client para fazer requisições ao backend
  */
 
-const API_BASE = "/api/auth";
+const AUTH_BASE = "/api/auth";
 
 /**
- * Faz login enviando credenciais para o server
+ * Enhanced API Client with generic methods
+ * Supports both relative URLs (/api/*) and absolute URLs (for Django backend)
+ */
+class ApiClient {
+  private baseUrl: string;
+
+  constructor(baseUrl?: string) {
+    this.baseUrl = baseUrl || env.API_BASE_URL;
+  }
+
+  private getAuthHeaders(): HeadersInit {
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+    };
+
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    return headers;
+  }
+
+  private buildUrl(endpoint: string): string {
+    // If endpoint is already absolute, use it directly
+    if (endpoint.startsWith("http://") || endpoint.startsWith("https://")) {
+      return endpoint;
+    }
+    // Otherwise, append to baseUrl
+    return `${this.baseUrl}${endpoint}`;
+  }
+
+  async get<T>(endpoint: string): Promise<T> {
+    const response = await fetch(this.buildUrl(endpoint), {
+      method: "GET",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        message: "Request failed",
+      }));
+      throw new Error(error.message || `GET ${endpoint} failed`);
+    }
+
+    const data = await response.json();
+    // Handle Django REST Framework response format (data.data || data)
+    return (data.data !== undefined ? data.data : data) as T;
+  }
+
+  async post<T>(endpoint: string, body?: unknown): Promise<T> {
+    const response = await fetch(this.buildUrl(endpoint), {
+      method: "POST",
+      headers: this.getAuthHeaders(),
+      body: body ? JSON.stringify(body) : undefined,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        message: "Request failed",
+      }));
+      throw new Error(error.message || `POST ${endpoint} failed`);
+    }
+
+    const data = await response.json();
+    return (data.data !== undefined ? data.data : data) as T;
+  }
+
+  async patch<T>(endpoint: string, body?: unknown): Promise<T> {
+    const response = await fetch(this.buildUrl(endpoint), {
+      method: "PATCH",
+      headers: this.getAuthHeaders(),
+      body: body ? JSON.stringify(body) : undefined,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        message: "Request failed",
+      }));
+      throw new Error(error.message || `PATCH ${endpoint} failed`);
+    }
+
+    const data = await response.json();
+    return (data.data !== undefined ? data.data : data) as T;
+  }
+
+  async put<T>(endpoint: string, body?: unknown): Promise<T> {
+    const response = await fetch(this.buildUrl(endpoint), {
+      method: "PUT",
+      headers: this.getAuthHeaders(),
+      body: body ? JSON.stringify(body) : undefined,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        message: "Request failed",
+      }));
+      throw new Error(error.message || `PUT ${endpoint} failed`);
+    }
+
+    const data = await response.json();
+    return (data.data !== undefined ? data.data : data) as T;
+  }
+
+  async delete<T>(endpoint: string): Promise<T> {
+    const response = await fetch(this.buildUrl(endpoint), {
+      method: "DELETE",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        message: "Request failed",
+      }));
+      throw new Error(error.message || `DELETE ${endpoint} failed`);
+    }
+
+    // DELETE might return 204 No Content
+    if (response.status === 204) {
+      return undefined as T;
+    }
+
+    const data = await response.json();
+    return (data.data !== undefined ? data.data : data) as T;
+  }
+}
+
+export const apiClient = new ApiClient();
+
+/**
+ * Legacy auth functions (keeping for backward compatibility)
  */
 export async function loginUser(
   credentials: LoginCredentials,
 ): Promise<LoginResponse> {
-  const response = await fetch(`${API_BASE}/login`, {
+  const response = await fetch(`${AUTH_BASE}/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -29,12 +160,9 @@ export async function loginUser(
   return response.json();
 }
 
-/**
- * Valida token enviando para o server
- */
 export async function validateToken(token: string): Promise<User | null> {
   try {
-    const response = await fetch(`${API_BASE}/validate`, {
+    const response = await fetch(`${AUTH_BASE}/validate`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

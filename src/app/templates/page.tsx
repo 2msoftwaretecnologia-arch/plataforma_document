@@ -1,35 +1,33 @@
 'use client';
 
 import AddTemplateModal from '@/components/templates/AddTemplateModal';
-import { createTemplate, getTemplates } from '@/services/templateService';
+import EmptyState from '@/components/shared/EmptyState';
+import ErrorState from '@/components/shared/ErrorState';
+import LoadingState from '@/components/shared/LoadingState';
+import {
+  useTemplates,
+  useCreateTemplate,
+} from '@/hooks/queries/useTemplates';
 import type { Template, TemplateStatus } from '@/types/api/template';
-import { CheckCircle, Edit, FileCheck, FileText, Map, Plus, XCircle } from 'lucide-react';
+import {
+  CheckCircle,
+  Edit,
+  FileCheck,
+  FileText,
+  Map,
+  Plus,
+  XCircle,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 export default function Templates() {
   const router = useRouter();
-  const [templates, setTemplates] = useState<Template[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    loadTemplates();
-  }, []);
-
-  const loadTemplates = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const data = await getTemplates();
-      setTemplates(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load templates');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // TanStack Query hooks
+  const { data: templates, isLoading, error, refetch } = useTemplates();
+  const createMutation = useCreateTemplate();
 
   const getTemplateStatus = (template: Template): TemplateStatus => {
     return {
@@ -38,45 +36,44 @@ export default function Templates() {
     };
   };
 
-  const handleCreateTemplate = async (data: { nome: string; descricao: string }) => {
-    try {
-      await createTemplate({
-        ...data,
-        arquivo_original: 'template_temp.docx', // Fake value for now
-      });
-      await loadTemplates();
-      setIsModalOpen(false);
-    } catch (err) {
-      throw err;
-    }
+  const handleCreateTemplate = async (data: {
+    nome: string;
+    descricao: string;
+  }) => {
+    await createMutation.mutateAsync({
+      ...data,
+      arquivo_original: 'template_temp.docx', // Fake value for now
+    });
+    setIsModalOpen(false);
   };
 
+  // Loading state
   if (isLoading) {
-    return (
-      <div className="bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Carregando templates...</p>
-        </div>
-      </div>
-    );
+    return <LoadingState message="Carregando templates..." />;
   }
 
+  // Error state
   if (error) {
+    return <ErrorState error={error} onRetry={refetch} />;
+  }
+
+  // Empty state
+  if (!templates || templates.length === 0) {
     return (
-      <div className="bg-background flex items-center justify-center">
-        <div className="text-center">
-          <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <p className="text-foreground font-semibold mb-2">Erro ao carregar templates</p>
-          <p className="text-muted-foreground mb-4">{error}</p>
+      <EmptyState
+        icon={<FileText className="w-16 h-16 text-muted-foreground" />}
+        title="Nenhum template encontrado"
+        message="Crie seu primeiro template para começar"
+        action={
           <button
-            onClick={loadTemplates}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90"
+            onClick={() => setIsModalOpen(true)}
+            className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:opacity-90 flex items-center gap-2"
           >
-            Tentar novamente
+            <Plus className="w-5 h-5" />
+            Criar Template
           </button>
-        </div>
-      </div>
+        }
+      />
     );
   }
 
@@ -139,19 +136,27 @@ export default function Templates() {
                   <div className="space-y-1.5 mt-auto">
                     <div className="flex items-center gap-2 text-xs">
                       <span className="text-muted-foreground">Status:</span>
-                      <span className={`font-medium ${template.ativo ? 'text-green-600' : 'text-red-600'}`}>
+                      <span
+                        className={`font-medium ${template.ativo ? 'text-green-600' : 'text-red-600'}`}
+                      >
                         {template.ativo ? 'Ativo' : 'Inativo'}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-xs">
                       <span className="text-muted-foreground">Mapeamento:</span>
-                      <span className={`font-medium ${status.isMapped ? 'text-green-600' : 'text-orange-600'}`}>
-                        {status.isMapped ? `${template.chaves.length} campos` : 'Pendente'}
+                      <span
+                        className={`font-medium ${status.isMapped ? 'text-green-600' : 'text-orange-600'}`}
+                      >
+                        {status.isMapped
+                          ? `${template.chaves.length} campos`
+                          : 'Pendente'}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-xs">
                       <span className="text-muted-foreground">Formulário:</span>
-                      <span className={`font-medium ${status.hasForm ? 'text-green-600' : 'text-orange-600'}`}>
+                      <span
+                        className={`font-medium ${status.hasForm ? 'text-green-600' : 'text-orange-600'}`}
+                      >
                         {status.hasForm ? 'Criado' : 'Pendente'}
                       </span>
                     </div>
@@ -161,7 +166,9 @@ export default function Templates() {
                 {/* Card Actions */}
                 <div className="p-3 border-t border-border flex gap-1.5 justify-end flex-shrink-0 bg-muted/30">
                   <button
-                    onClick={() => router.push(`/criar-formulario?templateId=${template.id}`)}
+                    onClick={() =>
+                      router.push(`/criar-formulario?templateId=${template.id}`)
+                    }
                     className="p-2 rounded-lg hover:bg-background transition-colors"
                     title="Editar formulário"
                   >
@@ -174,7 +181,9 @@ export default function Templates() {
                     <Map className="w-4 h-4 text-foreground" />
                   </button>
                   <button
-                    onClick={() => router.push(`/criar-formulario?templateId=${template.id}`)}
+                    onClick={() =>
+                      router.push(`/criar-formulario?templateId=${template.id}`)
+                    }
                     className="p-2 rounded-lg hover:bg-background transition-colors"
                     title="Criar formulário"
                   >
