@@ -1,7 +1,7 @@
 import React from "react";
 import { TextField } from "@mui/material";
-import { DateFieldData, FieldProps } from './types';
-import { getPlaceholderForDateType } from './utils';
+import { DateFieldData, FieldProps } from '../types';
+import { getPlaceholderForDateType } from '../utils';
 
 interface DateFieldComponentProps extends FieldProps {
   field: DateFieldData;

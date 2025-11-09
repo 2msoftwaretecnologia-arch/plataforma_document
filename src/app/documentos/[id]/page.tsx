@@ -25,7 +25,7 @@ import {
 } from "@mui/icons-material";
 import Link from "next/link";
 import { RenderStatus } from "@/models/Documento";
-import DynamicFormRenderer from "@/components/forms/DynamicFormRenderer";
+import DynamicFormRenderer from "@/components/forms/renderer/DynamicFormRenderer";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ValoresDocumento = Record<string, any>;

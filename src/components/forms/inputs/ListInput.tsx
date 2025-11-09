@@ -21,10 +21,10 @@ import {
 import { Add } from "@mui/icons-material";
 
 // Importa componentes reutilizáveis
-import ListHeader from "./ListHeader";
-import OptionItem from "./OptionItem";
+import ListHeader from "../shared/ListHeader";
+import OptionItem from "../shared/OptionItem";
 // Importa hook customizado
-import { useListOptions } from "../../hooks/useListOptions";
+import { useListOptions } from "../../../hooks/useListOptions";
 
 // Define a estrutura de uma opção da lista
 interface ListOption {

@@ -2,57 +2,61 @@ import React from "react";
 import { Control, useFieldArray } from "react-hook-form";
 import { Box, Button, Typography } from "@mui/material";
 import { Add } from "@mui/icons-material";
-import ListInput from "../ListInput";
-import { FormData } from "../../../types/formTypes";
+import NumberInput from "../../inputs/NumberInput";
+import { FormData } from "../../../../types/formTypes";
 
-interface ListsTabProps {
+interface NumberFieldsTabProps {
   control: Control<FormData>;
 }
 
-export default function ListsTab({ control }: ListsTabProps) {
+export default function NumberFieldsTab({ control }: NumberFieldsTabProps) {
   const {
-    fields: listFields,
-    append: appendList,
-    remove: removeList,
+    fields: numberFields,
+    append: appendNumberField,
+    remove: removeNumberField,
   } = useFieldArray({
     control,
-    name: "lists",
+    name: "numberFields",
   });
 
-  const addNewList = () => {
-    appendList({
+  const addNewNumberField = () => {
+    appendNumberField({
       name: "",
-      options: [{ value: "" }],
+      value: undefined,
+      min: undefined,
+      max: undefined,
+      allowDecimals: true,
+      required: false,
     });
   };
 
   return (
     <Box>
       <Typography variant="h6" sx={{ mb: 2 }}>
-        Listas de Opções
+        Campos Numéricos
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Crie listas com múltiplas opções que os usuários poderão selecionar.
+        Crie campos para entrada de números, com validação e configurações personalizadas.
       </Typography>
       
-      {listFields.map((field, index) => (
-        <ListInput
+      {numberFields.map((field, index) => (
+        <NumberInput
           key={field.id}
           control={control}
           index={index}
-          onRemove={() => removeList(index)}
+          onRemove={() => removeNumberField(index)}
         />
       ))}
 
       <Box sx={{ mb: 4, textAlign: "center" }}>
         <Button
-          onClick={addNewList}
+          onClick={addNewNumberField}
           startIcon={<Add />}
           variant="outlined"
           size="large"
           sx={{ minWidth: 200 }}
         >
-          Adicionar Lista
+          Adicionar Campo Numérico
         </Button>
       </Box>
     </Box>

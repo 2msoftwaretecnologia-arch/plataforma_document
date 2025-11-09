@@ -13,7 +13,7 @@ import {
 import { Visibility } from "@mui/icons-material";
 
 // Importar tipos e utilitários
-import { FormPreviewProps } from "./types";
+import { FormPreviewProps } from "../types";
 import {
   getValidLists,
   getValidTextFields,
@@ -21,14 +21,14 @@ import {
   getValidDateFields,
   getValidImageFields,
   hasValidFields,
-} from "./utils";
+} from "../utils";
 
 // Importar componentes
-import ListField from "./ListField";
-import TextFieldComponent from "./TextFieldComponent";
-import NumberFieldComponent from "./NumberFieldComponent";
-import DateFieldComponent from "./DateFieldComponent";
-import ImageFieldComponent from "./ImageFieldComponent";
+import ListField from "../fields/ListField";
+import TextFieldComponent from "../fields/TextFieldComponent";
+import NumberFieldComponent from "../fields/NumberFieldComponent";
+import DateFieldComponent from "../fields/DateFieldComponent";
+import ImageFieldComponent from "../fields/ImageFieldComponent";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type FormValues = Record<string, any>;

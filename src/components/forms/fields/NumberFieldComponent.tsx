@@ -1,6 +1,6 @@
 import React from "react";
 import { TextField } from "@mui/material";
-import { NumberFieldData, FieldProps } from './types';
+import { NumberFieldData, FieldProps } from '../types';
 
 interface NumberFieldComponentProps extends FieldProps {
   field: NumberFieldData;

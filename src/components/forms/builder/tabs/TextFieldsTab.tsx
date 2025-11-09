@@ -2,8 +2,8 @@ import React from "react";
 import { Control, useFieldArray } from "react-hook-form";
 import { Box, Button, Typography } from "@mui/material";
 import { Add } from "@mui/icons-material";
-import TextInput from "../TextInput";
-import { FormData } from "../../../types/formTypes";
+import TextInput from "../../inputs/TextInput";
+import { FormData } from "../../../../types/formTypes";
 
 interface TextFieldsTabProps {
   control: Control<FormData>;

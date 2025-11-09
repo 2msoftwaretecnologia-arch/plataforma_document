@@ -7,7 +7,7 @@ import type { FormData } from "@/types/ui/form";
 import { Alert, Box, CircularProgress, Snackbar } from "@mui/material";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import FormBuilder from "../../components/forms/FormBuilder";
+import FormBuilder from "../../components/forms/builder/FormBuilder";
 
 function CriarFormularioContent() {
   const router = useRouter();

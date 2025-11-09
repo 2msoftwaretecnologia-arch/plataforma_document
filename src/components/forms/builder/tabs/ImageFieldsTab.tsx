@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { Add, Image as ImageIcon } from "@mui/icons-material";
 import { Control, useFieldArray } from "react-hook-form";
-import ImageInput from "../ImageInput";
+import ImageInput from "../../inputs/ImageInput";
 
 interface ImageFieldsTabProps {
   control: Control<any>;

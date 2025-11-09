@@ -11,7 +11,7 @@ import {
   TextField,
   Box,
 } from "@mui/material";
-import { ListData, FieldProps } from './types';
+import { ListData, FieldProps } from '../types';
 
 interface ListFieldProps extends FieldProps {
   field: ListData;

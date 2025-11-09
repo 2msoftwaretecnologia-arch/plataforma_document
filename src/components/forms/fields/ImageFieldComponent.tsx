@@ -6,7 +6,7 @@ import {
   Chip,
 } from "@mui/material";
 import { CloudUpload, Close } from "@mui/icons-material";
-import { ImageFieldData, ImageFieldProps } from './types';
+import { ImageFieldData, ImageFieldProps } from '../types';
 
 export default function ImageFieldComponent({ 
   field, 

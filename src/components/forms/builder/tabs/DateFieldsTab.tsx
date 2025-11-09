@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { Add, CalendarToday } from "@mui/icons-material";
 import { Control, useFieldArray } from "react-hook-form";
-import DateInput from "../DateInput";
+import DateInput from "../../inputs/DateInput";
 
 interface DateFieldsTabProps {
   control: Control<any>;

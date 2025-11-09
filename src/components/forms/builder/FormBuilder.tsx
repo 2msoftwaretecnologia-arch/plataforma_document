@@ -16,14 +16,14 @@ import {
   Tab,
 } from "@mui/material";
 import { Save, Preview, TextFields, Numbers, List, CalendarToday, Image } from "@mui/icons-material";
-import FormPreview from "./FormPreview";
+import DynamicFormRenderer from "../renderer/DynamicFormRenderer";
 import ListsTab from "./tabs/ListsTab";
 import TextFieldsTab from "./tabs/TextFieldsTab";
 import NumberFieldsTab from "./tabs/NumberFieldsTab";
 import DateFieldsTab from "./tabs/DateFieldsTab";
 import ImageFieldsTab from "./tabs/ImageFieldsTab";
-import { formSchema } from "../../schemas/formSchemas";
-import { FormData, FormBuilderProps } from "../../types/formTypes";
+import { formSchema } from "../../../schemas/formSchemas";
+import { FormData, FormBuilderProps } from "../../../types/formTypes";
 
 export default function FormBuilder({
   onSave,
@@ -160,8 +160,11 @@ export default function FormBuilder({
 
           {/* Preview do Formulário */}
           {(watchedData.lists?.length || watchedData.textFields?.length || watchedData.numberFields?.length || watchedData.dateFields?.length || watchedData.imageFields?.length) ? (
-            <FormPreview 
-              lists={watchedData.lists || []} 
+            <DynamicFormRenderer
+              mode="preview"
+              showHeader={true}
+              showFooterMessage={true}
+              lists={watchedData.lists || []}
               textFields={watchedData.textFields || []}
               numberFields={watchedData.numberFields || []}
               dateFields={watchedData.dateFields || []}
