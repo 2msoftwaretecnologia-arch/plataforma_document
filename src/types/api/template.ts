@@ -28,7 +28,7 @@ export interface Template {
   descricao: string;
   arquivo_original: string;
   arquivo: string;
-  chaves: TemplateKey[];
+  chaves: TemplateKey[] | string[];  // Support both object and string array formats
   formulario: TemplateFormField[];
   metadados: TemplateMetadata;
   ativo: boolean;

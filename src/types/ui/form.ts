@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { dateFieldSchema, formSchema, imageFieldSchema, listSchema, numberFieldSchema, textFieldSchema } from "../../schemas/formSchemas";
+import type { TemplateKey } from "@/types/api/template";
 
 // Tipos inferidos dos schemas
 export type FormData = z.infer<typeof formSchema>;
@@ -16,4 +17,22 @@ export interface FormBuilderProps {
   initialData?: FormData;
   templateId?: string;
   templateName?: string;
+}
+
+// Template-driven form builder types
+export type FieldType = 'text' | 'number' | 'date' | 'list' | 'image';
+
+export type FieldConfig =
+  | TextFieldData
+  | NumberFieldData
+  | DateFieldData
+  | ListData
+  | ImageFieldData;
+
+export interface KeyFieldMapping {
+  chaveNome: string;
+  chaveTipo: TemplateKey['tipo'];
+  chaveObrigatoria: boolean;
+  formFieldType?: FieldType;
+  formFieldConfig?: FieldConfig;
 }

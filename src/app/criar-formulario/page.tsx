@@ -1,10 +1,9 @@
 "use client";
 
-import FormBuilder from "@/components/forms/builder/FormBuilder";
+import TemplateFormBuilder from "@/components/forms/builder/TemplateFormBuilder";
 import LoadingState from "@/components/shared/LoadingState";
 import { useTemplate, useUpdateTemplate } from "@/hooks/queries/useTemplates";
-import { formDataToTemplate, templateToFormData } from "@/lib/formMapper";
-import type { FormData } from "@/types/ui/form";
+import type { TemplateFormField } from "@/types/api/template";
 import { Alert, Box, Snackbar } from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
@@ -21,14 +20,13 @@ function CriarFormularioContent() {
   const { data: template, isLoading } = useTemplate(templateId);
   const updateMutation = useUpdateTemplate();
 
-  const handleSave = async (data: FormData) => {
+  const handleSave = async (formulario: TemplateFormField[]) => {
     try {
       if (!template) {
         setError("Nenhum template selecionado para editar");
         return;
       }
 
-      const formulario = formDataToTemplate(data);
       console.log("Salvando formulário:", {
         templateId: template.id,
         formulario,
@@ -53,25 +51,34 @@ function CriarFormularioContent() {
     }
   };
 
-  const handlePreview = (data: FormData) => {
-    console.log("Preview do formulário:", data);
-    // TODO: Implementar preview modal ou navegação
-  };
-
   if (isLoading) {
     return <LoadingState message="Carregando template..." />;
   }
 
+  if (!template) {
+    return (
+      <Box sx={{ p: 4 }}>
+        <Alert severity="error">Template não encontrado.</Alert>
+      </Box>
+    );
+  }
+
+  if (!template.chaves || template.chaves.length === 0) {
+    return (
+      <Box sx={{ p: 4 }}>
+        <Alert severity="warning">
+          Este template não possui chaves mapeadas. Por favor, mapeie o template primeiro.
+        </Alert>
+      </Box>
+    );
+  }
+
   return (
     <Box>
-      <FormBuilder
+      <TemplateFormBuilder
+        template={template}
         onSave={handleSave}
-        onPreview={handlePreview}
-        initialData={
-          template ? templateToFormData(template.formulario) : undefined
-        }
-        templateId={template?.id}
-        templateName={template?.nome}
+        isLoading={updateMutation.isPending}
       />
 
       <Snackbar
