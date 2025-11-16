@@ -1,6 +1,4 @@
 "use client";
-
-import { RenderStatus } from "@/models/Documento";
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
@@ -32,7 +30,9 @@ import {
   Tooltip
 } from "@mui/material";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import type { RenderStatus } from "@/types/domain/document";
 
 // Interface local para documento com dados de exibição
 interface DocumentoDisplay {
@@ -119,6 +119,21 @@ export default function DocumentosPage() {
     descricao: "",
     template: "",
   });
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const updatedId = searchParams.get("updatedId");
+    const status = searchParams.get("status");
+    if (updatedId && status) {
+      setDocuments((prev) =>
+        prev.map((doc) =>
+          doc.id === updatedId
+            ? { ...doc, status_render: status as RenderStatus }
+            : doc
+        )
+      );
+    }
+  }, [searchParams]);
 
   // Filter documents based on search and template
   const filteredDocuments = useMemo(() => {

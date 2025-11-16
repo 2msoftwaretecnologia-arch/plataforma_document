@@ -20,5 +20,4 @@ export * from './ui/form';
 
 // ==================== DOMAIN TYPES ====================
 // Business logic types - to be added as needed
-// export * from './domain/user';
-// export * from './domain/audit';
+export * from './domain/document';

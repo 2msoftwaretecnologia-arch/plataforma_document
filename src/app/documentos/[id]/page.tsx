@@ -24,7 +24,9 @@ import {
   Edit as EditIcon,
 } from "@mui/icons-material";
 import Link from "next/link";
-import { RenderStatus } from "@/models/Documento";
+import { useRouter } from "next/navigation";
+import { apiClient } from "@/lib/apiClient";
+import type { RenderStatus } from "@/types/domain/document";
 import DynamicFormRenderer from "@/components/forms/renderer/DynamicFormRenderer";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -155,6 +157,7 @@ const statusLabels: Record<RenderStatus, string> = {
 export default function DocumentoPage() {
   const params = useParams();
   const documentoId = params.id as string;
+  const router = useRouter();
 
   // Mock data - in production, fetch from API
   const [documento, setDocumento] = useState<DocumentoDetail>(mockDocumentoData);
@@ -168,24 +171,16 @@ export default function DocumentoPage() {
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
-      // Simulate API call to render/save documento
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Update documento status
       setDocumento((prev) => ({
         ...prev,
         status_render: "processando" as RenderStatus,
       }));
 
-      setShowSuccess(true);
-      // Simulate rendering completion after 3 seconds
-      setTimeout(() => {
-        setDocumento((prev) => ({
-          ...prev,
-          status_render: "concluido" as RenderStatus,
-          arquivo_renderizado: `/files/documento-${documentoId}.pdf`,
-        }));
-      }, 3000);
+      await apiClient.post(`/documents/${documentoId}/render/`, {
+        valores: formValues,
+      });
+
+      router.replace(`/documentos?updatedId=${documentoId}&status=processando`);
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : "Erro ao processar documento"

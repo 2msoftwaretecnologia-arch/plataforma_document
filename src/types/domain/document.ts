@@ -1,0 +1,1 @@
+export type RenderStatus = 'pendente' | 'processando' | 'concluido' | 'erro';
