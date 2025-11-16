@@ -1,9 +1,9 @@
 "use client";
 
-import TemplateFormBuilder from "@/components/forms/builder/TemplateFormBuilder";
-import LoadingState from "@/components/shared/LoadingState";
-import { useTemplate, useUpdateTemplate } from "@/hooks/queries/useTemplates";
-import type { TemplateFormField } from "@/types/api/template";
+import TemplateFormBuilder from "@/modules/forms/components/builder/TemplateFormBuilder";
+import LoadingState from "@/shared/components/LoadingState";
+import { useTemplate, useUpdateTemplate } from "@/modules/templates/hooks/useTemplates";
+import type { TemplateFormField } from "@/modules/templates/types";
 import { Alert, Box, Snackbar } from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";

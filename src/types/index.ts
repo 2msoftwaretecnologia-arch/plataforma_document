@@ -1,24 +1,15 @@
 /**
- * Central type exports
- * Barrel file for easy imports
+ * Central type exports - DEPRECATED
  *
- * Usage:
- * import { Template, User, LoginCredentials } from '@/types';
- * import type { Template } from '@/types/api/template'; // Specific import
+ * This file is kept for backwards compatibility only.
+ *
+ * NEW imports should use feature-specific paths:
+ * - import { User, LoginCredentials } from '@/modules/auth/types';
+ * - import { Template } from '@/modules/templates/types';
+ * - import { FormData } from '@/modules/forms/types';
  */
 
-// ==================== API TYPES ====================
-// Types matching Django backend API responses/requests
-
-export * from './api/auth';
-export * from './api/template';
-
-// ==================== UI TYPES ====================
-// Frontend-specific types (forms, components, etc.)
-
-export * from './ui/form';
-
-// ==================== DOMAIN TYPES ====================
-// Business logic types - to be added as needed
-// export * from './domain/user';
-// export * from './domain/audit';
+// Re-export from feature modules for backwards compatibility
+export * from '@/modules/auth/types';
+export * from '@/modules/templates/types';
+export * from '@/modules/forms/types';

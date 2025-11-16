@@ -1,14 +1,14 @@
 'use client';
 
-import AddTemplateModal from '@/components/templates/AddTemplateModal';
-import EmptyState from '@/components/shared/EmptyState';
-import ErrorState from '@/components/shared/ErrorState';
-import LoadingState from '@/components/shared/LoadingState';
+import AddTemplateModal from '@/modules/templates/components/AddTemplateModal';
+import EmptyState from '@/shared/components/EmptyState';
+import ErrorState from '@/shared/components/ErrorState';
+import LoadingState from '@/shared/components/LoadingState';
 import {
   useTemplates,
   useCreateTemplate,
-} from '@/hooks/queries/useTemplates';
-import type { Template, TemplateStatus } from '@/types/api/template';
+} from '@/modules/templates/hooks/useTemplates';
+import type { Template, TemplateStatus } from '@/modules/templates/types';
 import {
   CheckCircle,
   Edit,

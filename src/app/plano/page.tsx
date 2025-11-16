@@ -1,7 +1,7 @@
 'use client';
 
 import { Check, Star, Zap, Crown, Settings } from 'lucide-react';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useTheme } from '@/modules/layout/theme/context';
 
 export default function Plano() {
   const { theme } = useTheme();

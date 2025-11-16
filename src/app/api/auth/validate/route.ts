@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import type { JWTPayload, User } from "@/types/api/auth";
+import type { JWTPayload, User } from "@/modules/auth/types";
 
 // Helper function to decode base64url
 function base64urlDecode(str: string): string {

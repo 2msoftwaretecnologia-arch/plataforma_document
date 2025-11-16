@@ -9,10 +9,10 @@ import {
 } from "@mui/icons-material";
 
 // Import dashboard components
-import MetricCard from "@/components/dashboard/MetricCard";
-import PlanUsageCard from "@/components/dashboard/PlanUsageCard";
-import UserStatsTable from "@/components/dashboard/UserStatsTable";
-import TopDocumentsChart from "@/components/dashboard/TopDocumentsChart";
+import MetricCard from "@/modules/dashboard/components/MetricCard";
+import PlanUsageCard from "@/modules/dashboard/components/PlanUsageCard";
+import UserStatsTable from "@/modules/dashboard/components/UserStatsTable";
+import TopDocumentsChart from "@/modules/dashboard/components/TopDocumentsChart";
 
 // Import mock data
 import {
@@ -20,7 +20,7 @@ import {
   mockUserStats,
   mockDocumentStats,
   getDashboardMetricsWithTrends,
-} from "@/data/mockDashboardData";
+} from "@/modules/dashboard/mock-data";
 
 export default function Dashboard() {
   const metricsWithTrends = getDashboardMetricsWithTrends();

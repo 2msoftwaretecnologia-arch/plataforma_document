@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/modules/auth/context";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LockOutlined, Visibility, VisibilityOff } from "@mui/icons-material";
 import {
