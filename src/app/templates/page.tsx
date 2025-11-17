@@ -1,6 +1,8 @@
 'use client';
 
-import AddTemplateModal from '@/modules/templates/components/AddTemplateModal';
+import AddTemplateModal, {
+  type TemplateFormData,
+} from '@/modules/templates/components/AddTemplateModal';
 import EmptyState from '@/shared/components/EmptyState';
 import ErrorState from '@/shared/components/ErrorState';
 import LoadingState from '@/shared/components/LoadingState';
@@ -19,11 +21,11 @@ import {
   XCircle,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useModal } from '@/modules/modals';
 
 export default function Templates() {
   const router = useRouter();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const addModal = useModal<null, TemplateFormData>(AddTemplateModal);
 
   // TanStack Query hooks
   const { data: templates, isLoading, error, refetch } = useTemplates();
@@ -36,15 +38,14 @@ export default function Templates() {
     };
   };
 
-  const handleCreateTemplate = async (data: {
-    nome: string;
-    descricao: string;
-  }) => {
-    await createMutation.mutateAsync({
-      ...data,
-      arquivo_original: 'template_temp.docx', // Fake value for now
-    });
-    setIsModalOpen(false);
+  const handleCreateTemplate = async () => {
+    const data = await addModal.open();
+    if (data) {
+      await createMutation.mutateAsync({
+        ...data,
+        arquivo_original: 'template_temp.docx', // Fake value for now
+      });
+    }
   };
 
   // Loading state
@@ -66,7 +67,7 @@ export default function Templates() {
         message="Crie seu primeiro template para começar"
         action={
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={handleCreateTemplate}
             className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:opacity-90 flex items-center gap-2"
           >
             <Plus className="w-5 h-5" />
@@ -196,7 +197,7 @@ export default function Templates() {
 
           {/* Add New Template Card */}
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={handleCreateTemplate}
             className="bg-card border-2 border-dashed border-border rounded-xl shadow-lg hover:shadow-xl hover:border-primary transition-all duration-300 flex flex-col items-center justify-center h-full min-h-[300px] group"
           >
             <div className="p-4 bg-primary/10 rounded-full mb-4 group-hover:bg-primary/20 transition-colors">
@@ -210,11 +211,7 @@ export default function Templates() {
       </div>
 
       {/* Add Template Modal */}
-      <AddTemplateModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSubmit={handleCreateTemplate}
-      />
+      <addModal.Modal />
     </div>
   );
 }

@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -11,47 +10,43 @@ const templateSchema = z.object({
   descricao: z.string().min(1, 'Descrição é obrigatória').max(500, 'Descrição muito longa'),
 });
 
-type TemplateFormData = z.infer<typeof templateSchema>;
+export type TemplateFormData = z.infer<typeof templateSchema>;
 
+// Padrão useModal: recebe data (input) e onClose com callback (output)
 interface AddTemplateModalProps {
   isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: TemplateFormData) => Promise<void>;
+  data?: null;  // Não precisa de input data neste caso
+  onClose: (result?: TemplateFormData) => void;  // Output: dados do formulário
 }
 
 export default function AddTemplateModal({
   isOpen,
   onClose,
-  onSubmit,
 }: AddTemplateModalProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     reset,
+    setError,
   } = useForm<TemplateFormData>({
     resolver: zodResolver(templateSchema),
   });
 
   const handleClose = () => {
     reset();
-    setError(null);
-    onClose();
+    onClose();  // Cancelar sem dados
   };
 
   const handleFormSubmit = async (data: TemplateFormData) => {
     try {
-      setIsSubmitting(true);
-      setError(null);
-      await onSubmit(data);
       reset();
+      onClose(data);  // Retornar dados via onClose
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao criar template');
-    } finally {
-      setIsSubmitting(false);
+      setError('root', {
+        type: 'manual',
+        message: err instanceof Error ? err.message : 'Erro ao criar template',
+      });
     }
   };
 
@@ -82,9 +77,9 @@ export default function AddTemplateModal({
         {/* Form */}
         <form onSubmit={handleSubmit(handleFormSubmit)} className="p-6">
           {/* Error Message */}
-          {error && (
+          {errors.root && (
             <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-800 rounded-lg">
-              <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
+              <p className="text-sm text-red-700 dark:text-red-400">{errors.root.message}</p>
             </div>
           )}
 

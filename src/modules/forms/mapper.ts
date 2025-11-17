@@ -47,7 +47,7 @@ export function templateToFormData(formulario: TemplateFormField[] = []): FormDa
         formData.dateFields?.push({
           name: campo,
           dateType: tipo === 'datetime' ? 'datetime-local' : 'date',
-          required,
+          required: required ?? false,
         });
         break;
 
@@ -63,8 +63,10 @@ export function templateToFormData(formulario: TemplateFormField[] = []): FormDa
       case 'image':
         formData.imageFields?.push({
           name: campo,
-          required,
+          required: required ?? false,
           allowMultiple: false,
+          acceptedFormats: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+          maxFileSize: 5,
         });
         break;
     }

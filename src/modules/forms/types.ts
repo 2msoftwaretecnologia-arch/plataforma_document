@@ -1,43 +1,8 @@
+// Re-export types from ui/form for backwards compatibility
+export type { FormData, FieldType, KeyFieldMapping, ListData, TextFieldData, NumberFieldData, DateFieldData, ImageFieldData } from '@/types/ui/form';
+
 export interface ListOption {
   value: string;
-}
-
-export interface ListData {
-  name: string;
-  options: ListOption[];
-  multiSelect?: boolean;
-  allowCustomValues?: boolean;
-}
-
-export interface TextFieldData {
-  name: string;
-  value?: string;
-}
-
-export interface NumberFieldData {
-  name: string;
-  value?: number;
-  min?: number;
-  max?: number;
-  allowDecimals?: boolean;
-  required?: boolean;
-}
-
-export interface DateFieldData {
-  name: string;
-  dateType: "date" | "datetime-local" | "time" | "month";
-  value?: string;
-  required?: boolean;
-  helperText?: string;
-}
-
-export interface ImageFieldData {
-  name: string;
-  allowMultiple?: boolean;
-  required?: boolean;
-  helperText?: string;
-  acceptedFormats?: string[];
-  maxFileSize?: number;
 }
 
 export interface FormPreviewProps {
@@ -47,6 +12,9 @@ export interface FormPreviewProps {
   dateFields?: DateFieldData[];
   imageFields?: ImageFieldData[];
 }
+
+// Import the types we're using in FormPreviewProps
+import type { ListData, TextFieldData, NumberFieldData, DateFieldData, ImageFieldData } from '@/types/ui/form';
 
 export interface FieldProps {
   field: any;

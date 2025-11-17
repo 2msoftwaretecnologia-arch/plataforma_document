@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { dateFieldSchema, formSchema, imageFieldSchema, listSchema, numberFieldSchema, textFieldSchema } from "../../schemas/formSchemas";
-import type { TemplateKey } from "@/types/api/template";
+import { dateFieldSchema, formSchema, imageFieldSchema, listSchema, numberFieldSchema, textFieldSchema } from "@/modules/forms/schemas";
+import type { TemplateKey } from "@/modules/templates/types";
 
 // Tipos inferidos dos schemas
 export type FormData = z.infer<typeof formSchema>;
