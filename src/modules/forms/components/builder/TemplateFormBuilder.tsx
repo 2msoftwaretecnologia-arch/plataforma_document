@@ -13,9 +13,11 @@ import {
 } from "@mui/material";
 import { Save, Visibility } from "@mui/icons-material";
 import type { Template, TemplateFormField } from "@/modules/templates/types";
-import type { KeyFieldMapping, FieldType } from "@/modules/forms/types";
-import { chavesToKeyMappings, formularioToKeyMappings, keyMappingsToFormulario } from "@/modules/forms/mapper";
+import type { KeyFieldMapping, FieldType, FormData } from "@/modules/forms/types";
+import { chavesToKeyMappings, formularioToKeyMappings, keyMappingsToFormulario, templateToFormData } from "@/modules/forms/mapper";
 import KeyMappingCard from "./KeyMappingCard";
+import { useModal } from "@/modules/modals/useModal";
+import FormPreviewModal from "../modals/FormPreviewModal";
 
 interface TemplateFormBuilderProps {
   template: Template;
@@ -29,6 +31,7 @@ export default function TemplateFormBuilder({
   isLoading = false,
 }: TemplateFormBuilderProps) {
   const [mappings, setMappings] = useState<KeyFieldMapping[]>([]);
+  const previewModal = useModal<FormData, void>(FormPreviewModal);
 
   // Initialize mappings on mount
   useEffect(() => {
@@ -66,6 +69,12 @@ export default function TemplateFormBuilder({
   const handleSave = () => {
     const formulario = keyMappingsToFormulario(mappings);
     onSave(formulario);
+  };
+
+  const handlePreview = () => {
+    const formulario = keyMappingsToFormulario(mappings);
+    const formData = templateToFormData(formulario);
+    previewModal.open(formData);
   };
 
   if (!template.chaves || template.chaves.length === 0) {
@@ -150,6 +159,7 @@ export default function TemplateFormBuilder({
             variant="outlined"
             startIcon={<Visibility />}
             disabled={!isFormValid}
+            onClick={handlePreview}
           >
             Visualizar
           </Button>
@@ -163,6 +173,9 @@ export default function TemplateFormBuilder({
           </Button>
         </Box>
       </Paper>
+
+      {/* Preview Modal */}
+      <previewModal.Modal />
     </Container>
   );
 }

@@ -1,9 +1,9 @@
 "use client";
 
 import TemplateFormBuilder from "@/modules/forms/components/builder/TemplateFormBuilder";
-import LoadingState from "@/shared/components/LoadingState";
 import { useTemplate, useUpdateTemplate } from "@/modules/templates/hooks/useTemplates";
 import type { TemplateFormField } from "@/modules/templates/types";
+import LoadingState from "@/shared/components/LoadingState";
 import { Alert, Box, Snackbar } from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
@@ -39,10 +39,10 @@ function CriarFormularioContent() {
 
       setShowSuccess(true);
 
-      // Redirect to templates page after 1.5 seconds
+      // Redirect to templates page after 100 ms
       setTimeout(() => {
         router.push("/templates");
-      }, 1500);
+      }, 100);
     } catch (err) {
       console.error("Erro ao salvar:", err);
       setError(

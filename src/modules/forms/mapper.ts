@@ -3,7 +3,15 @@
  * Converts between Template.formulario and FormBuilder.FormData formats
  */
 
-import type { TemplateFormField, TemplateKey } from '@/modules/templates/types';
+import type {
+  TemplateFormField,
+  TemplateKey,
+  TextFieldConfig,
+  NumberFieldConfig,
+  DateFieldConfig,
+  ListFieldConfig,
+  ImageFieldConfig,
+} from '@/modules/templates/types';
 import type { FormData, KeyFieldMapping, FieldType } from '@/modules/forms/types';
 
 /**
@@ -24,14 +32,14 @@ export function templateToFormData(formulario: TemplateFormField[] = []): FormDa
   }
 
   formulario.forEach((field) => {
-    const { tipo, campo, label, required } = field;
+    const { tipo, campo, required, config } = field;
 
     switch (tipo) {
       case 'text':
       case 'email':
         formData.textFields?.push({
           name: campo,
-          value: label,
+          value: (config as TextFieldConfig)?.value || '',
         });
         break;
 
@@ -39,6 +47,10 @@ export function templateToFormData(formulario: TemplateFormField[] = []): FormDa
         formData.numberFields?.push({
           name: campo,
           required,
+          value: (config as NumberFieldConfig)?.value,
+          min: (config as NumberFieldConfig)?.min,
+          max: (config as NumberFieldConfig)?.max,
+          allowDecimals: (config as NumberFieldConfig)?.allowDecimals,
         });
         break;
 
@@ -46,8 +58,10 @@ export function templateToFormData(formulario: TemplateFormField[] = []): FormDa
       case 'datetime':
         formData.dateFields?.push({
           name: campo,
-          dateType: tipo === 'datetime' ? 'datetime-local' : 'date',
+          dateType: (config as DateFieldConfig)?.dateType || (tipo === 'datetime' ? 'datetime-local' : 'date'),
           required: required ?? false,
+          value: (config as DateFieldConfig)?.value,
+          helperText: (config as DateFieldConfig)?.helperText,
         });
         break;
 
@@ -55,8 +69,9 @@ export function templateToFormData(formulario: TemplateFormField[] = []): FormDa
       case 'list':
         formData.lists?.push({
           name: campo,
-          options: [],
-          multiSelect: false,
+          options: (config as ListFieldConfig)?.options || [],
+          multiSelect: (config as ListFieldConfig)?.multiSelect || false,
+          allowCustomValues: (config as ListFieldConfig)?.allowCustomValues,
         });
         break;
 
@@ -64,9 +79,10 @@ export function templateToFormData(formulario: TemplateFormField[] = []): FormDa
         formData.imageFields?.push({
           name: campo,
           required: required ?? false,
-          allowMultiple: false,
-          acceptedFormats: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
-          maxFileSize: 5,
+          allowMultiple: (config as ImageFieldConfig)?.allowMultiple || false,
+          acceptedFormats: (config as ImageFieldConfig)?.acceptedFormats || ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+          maxFileSize: (config as ImageFieldConfig)?.maxFileSize || 5,
+          helperText: (config as ImageFieldConfig)?.helperText,
         });
         break;
     }
@@ -83,51 +99,81 @@ export function formDataToTemplate(formData: FormData): TemplateFormField[] {
 
   // Text fields
   formData.textFields?.forEach((field) => {
+    const config: TextFieldConfig = {
+      value: field.value,
+    };
     formulario.push({
       tipo: 'text',
       campo: field.name,
-      label: field.value || field.name,
+      label: field.name,
       required: false,
+      config,
     });
   });
 
   // Number fields
   formData.numberFields?.forEach((field) => {
+    const config: NumberFieldConfig = {
+      value: field.value,
+      min: field.min,
+      max: field.max,
+      allowDecimals: field.allowDecimals,
+    };
     formulario.push({
       tipo: 'number',
       campo: field.name,
       label: field.name,
       required: field.required || false,
+      config,
     });
   });
 
   // Date fields
   formData.dateFields?.forEach((field) => {
+    const config: DateFieldConfig = {
+      dateType: field.dateType,
+      value: field.value,
+      helperText: field.helperText,
+    };
     formulario.push({
       tipo: field.dateType === 'datetime-local' ? 'datetime' : 'date',
       campo: field.name,
       label: field.name,
       required: field.required || false,
+      config,
     });
   });
 
   // Lists
   formData.lists?.forEach((field) => {
+    const config: ListFieldConfig = {
+      options: field.options,
+      multiSelect: field.multiSelect,
+      allowCustomValues: field.allowCustomValues,
+    };
     formulario.push({
       tipo: 'select',
       campo: field.name,
       label: field.name,
       required: false,
+      config,
     });
   });
 
   // Images
   formData.imageFields?.forEach((field) => {
+    const config: ImageFieldConfig = {
+      allowMultiple: field.allowMultiple,
+      acceptedFormats: field.acceptedFormats,
+      maxFileSize: field.maxFileSize,
+      helperText: field.helperText,
+    };
     formulario.push({
       tipo: 'image',
       campo: field.name,
       label: field.name,
       required: field.required || false,
+      config,
     });
   });
 
@@ -218,18 +264,30 @@ export function formularioToKeyMappings(
         fieldType = 'text';
     }
 
-    // Create config based on type (simplified - extend as needed)
-    const config: Record<string, unknown> = {
-      name: formField.campo,
-    };
+    // Reconstruct the full config from saved field
+    let config: KeyFieldMapping['formFieldConfig'];
 
-    if (fieldType === 'text') {
-      config.value = formField.label;
-    } else if (fieldType === 'number' || fieldType === 'date' || fieldType === 'image') {
-      config.required = formField.required;
-    } else if (fieldType === 'list') {
-      config.options = [];
-      config.multiSelect = false;
+    if (formField.config) {
+      config = {
+        name: formField.campo,
+        ...formField.config,
+      } as KeyFieldMapping['formFieldConfig'];
+    } else {
+      // Fallback for old format without config
+      const baseConfig: Record<string, unknown> = {
+        name: formField.campo,
+      };
+
+      if (fieldType === 'text') {
+        baseConfig.value = formField.label;
+      } else if (fieldType === 'number' || fieldType === 'date' || fieldType === 'image') {
+        baseConfig.required = formField.required;
+      } else if (fieldType === 'list') {
+        baseConfig.options = [];
+        baseConfig.multiSelect = false;
+      }
+
+      config = baseConfig as KeyFieldMapping['formFieldConfig'];
     }
 
     if (typeof chave === 'string') {
@@ -259,12 +317,18 @@ export function keyMappingsToFormulario(mappings: KeyFieldMapping[]): TemplateFo
   return mappings
     .filter(m => m.formFieldType && m.formFieldConfig)
     .map(m => {
-      const config = m.formFieldConfig!;
+      const fieldConfig = m.formFieldConfig!;
+      const fieldType = m.formFieldType!;
+
+      // Extract the config without the 'name' property
+      const { name, ...config } = fieldConfig as Record<string, unknown>;
+
       const baseField: TemplateFormField = {
-        tipo: m.formFieldType!,
+        tipo: fieldType,
         campo: m.chaveNome,
         label: m.chaveNome,
         required: m.chaveObrigatoria,
+        config: config as TemplateFormField['config'],
       };
 
       // Override required based on config if available

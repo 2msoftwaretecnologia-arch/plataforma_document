@@ -1,0 +1,152 @@
+{
+  "formulario": [
+    {
+      "tipo": "text",
+      "campo": "nome_completo",
+      "label": "Nome Completo",
+      "required": true,
+      "config": {
+        "value": "João Silva",
+        "helperText": "Digite seu nome completo"
+      }
+    },
+    {
+      "tipo": "email",
+      "campo": "email",
+      "label": "E-mail",
+      "required": true,
+      "config": {
+        "value": "joao@example.com",
+        "helperText": "Digite um e-mail válido"
+      }
+    },
+    {
+      "tipo": "number",
+      "campo": "idade",
+      "label": "Idade",
+      "required": true,
+      "config": {
+        "value": 25,
+        "min": 18,
+        "max": 100,
+        "allowDecimals": false,
+        "helperText": "Idade deve ser entre 18 e 100 anos"
+      }
+    },
+    {
+      "tipo": "number",
+      "campo": "salario",
+      "label": "Salário",
+      "required": false,
+      "config": {
+        "min": 1000,
+        "max": 50000,
+        "allowDecimals": true,
+        "helperText": "Digite o salário em reais"
+      }
+    },
+    {
+      "tipo": "date",
+      "campo": "data_nascimento",
+      "label": "Data de Nascimento",
+      "required": true,
+      "config": {
+        "dateType": "date",
+        "value": "1999-05-15",
+        "helperText": "Selecione sua data de nascimento"
+      }
+    },
+    {
+      "tipo": "datetime",
+      "campo": "data_agendamento",
+      "label": "Data e Hora do Agendamento",
+      "required": false,
+      "config": {
+        "dateType": "datetime-local",
+        "value": "2025-11-16T14:30",
+        "helperText": "Escolha data e hora do agendamento"
+      }
+    },
+    {
+      "tipo": "date",
+      "campo": "hora_preferida",
+      "label": "Hora Preferida",
+      "required": false,
+      "config": {
+        "dateType": "time",
+        "value": "14:30",
+        "helperText": "Selecione o horário preferido"
+      }
+    },
+    {
+      "tipo": "date",
+      "campo": "mes_referencia",
+      "label": "Mês de Referência",
+      "required": false,
+      "config": {
+        "dateType": "month",
+        "value": "2025-11",
+        "helperText": "Selecione o mês de referência"
+      }
+    },
+    {
+      "tipo": "select",
+      "campo": "estado_civil",
+      "label": "Estado Civil",
+      "required": true,
+      "config": {
+        "options": [
+          { "value": "solteiro" },
+          { "value": "casado" },
+          { "value": "divorciado" },
+          { "value": "viuvo" }
+        ],
+        "multiSelect": false,
+        "allowCustomValues": false,
+        "helperText": "Selecione seu estado civil"
+      }
+    },
+    {
+      "tipo": "list",
+      "campo": "hobbies",
+      "label": "Hobbies",
+      "required": false,
+      "config": {
+        "options": [
+          { "value": "Esportes" },
+          { "value": "Música" },
+          { "value": "Leitura" },
+          { "value": "Viagens" },
+          { "value": "Cinema" }
+        ],
+        "multiSelect": true,
+        "allowCustomValues": true,
+        "helperText": "Selecione um ou mais hobbies (pode adicionar novos)"
+      }
+    },
+    {
+      "tipo": "image",
+      "campo": "foto_perfil",
+      "label": "Foto de Perfil",
+      "required": true,
+      "config": {
+        "allowMultiple": false,
+        "acceptedFormats": ["image/jpeg", "image/png", "image/gif", "image/webp"],
+        "maxFileSize": 5,
+        "helperText": "Envie uma foto de perfil (max 5MB)"
+      }
+    },
+    {
+      "tipo": "image",
+      "campo": "documentos",
+      "label": "Documentos",
+      "required": false,
+      "config": {
+        "allowMultiple": true,
+        "acceptedFormats": ["image/jpeg", "image/png", "application/pdf"],
+        "maxFileSize": 10,
+        "helperText": "Envie seus documentos (múltiplos arquivos, max 10MB cada)"
+      }
+    }
+  ]
+}
