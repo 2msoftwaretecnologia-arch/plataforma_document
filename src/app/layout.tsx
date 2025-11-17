@@ -2,6 +2,7 @@ import LayoutContent from "@/modules/layout/components/LayoutContent";
 import { AuthProvider } from "@/modules/auth/context";
 import { ThemeProvider } from "@/modules/layout/theme/context";
 import { QueryProvider } from "@/shared/api/query-provider";
+import { ToastProvider, ToastContainer } from "@/modules/notifications";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -35,7 +36,10 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             <QueryProvider>
-              <LayoutContent>{children}</LayoutContent>
+              <ToastProvider>
+                <LayoutContent>{children}</LayoutContent>
+                <ToastContainer />
+              </ToastProvider>
             </QueryProvider>
           </AuthProvider>
         </ThemeProvider>

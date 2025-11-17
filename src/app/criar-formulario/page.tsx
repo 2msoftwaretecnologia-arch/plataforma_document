@@ -1,20 +1,19 @@
 "use client";
 
 import TemplateFormBuilder from "@/modules/forms/components/builder/TemplateFormBuilder";
+import { useToast } from "@/modules/notifications";
 import { useTemplate, useUpdateTemplate } from "@/modules/templates/hooks/useTemplates";
 import type { TemplateFormField } from "@/modules/templates/types";
 import LoadingState from "@/shared/components/LoadingState";
-import { Alert, Box, Snackbar } from "@mui/material";
+import { Alert, Box } from "@mui/material";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 
 function CriarFormularioContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const templateId = searchParams?.get("templateId");
-
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
 
   // TanStack Query hooks
   const { data: template, isLoading } = useTemplate(templateId);
@@ -23,7 +22,7 @@ function CriarFormularioContent() {
   const handleSave = async (formulario: TemplateFormField[]) => {
     try {
       if (!template) {
-        setError("Nenhum template selecionado para editar");
+        toast.error("Nenhum template selecionado para editar");
         return;
       }
 
@@ -37,15 +36,11 @@ function CriarFormularioContent() {
         data: { formulario },
       });
 
-      setShowSuccess(true);
-
-      // Redirect to templates page after 100 ms
-      setTimeout(() => {
-        router.push("/templates");
-      }, 100);
+      toast.success("Formulário salvo com sucesso!");
+      router.push("/templates");
     } catch (err) {
       console.error("Erro ao salvar:", err);
-      setError(
+      toast.error(
         err instanceof Error ? err.message : "Erro ao salvar formulário"
       );
     }
@@ -80,32 +75,6 @@ function CriarFormularioContent() {
         onSave={handleSave}
         isLoading={updateMutation.isPending}
       />
-
-      <Snackbar
-        open={showSuccess}
-        autoHideDuration={6000}
-        onClose={() => setShowSuccess(false)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      >
-        <Alert
-          onClose={() => setShowSuccess(false)}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
-          Formulário salvo com sucesso!
-        </Alert>
-      </Snackbar>
-
-      <Snackbar
-        open={!!error}
-        autoHideDuration={6000}
-        onClose={() => setError(null)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      >
-        <Alert onClose={() => setError(null)} severity="error" sx={{ width: "100%" }}>
-          {error}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 }
